@@ -1,9 +1,3 @@
-record(calc, "MCTTBL01DAQ01:SumAll:MeanValue_RBV")
-{
-  field(SCAN, ".1 second")
-  field(CALC, "RNDM*100")
-}
-
 record(sscan,"$(P)MONO01_OPT_SCAN") {
   field(DESC, "Intensity opt record")
   field(MPTS, "$(MAXPTS=100)")
