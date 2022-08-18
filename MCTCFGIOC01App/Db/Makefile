@@ -8,6 +8,7 @@ include $(TOP)/configure/CONFIG
 # databases, templates, substitutions like this
 DB += MCT_config_user_inputs.db
 DB += MCT_opt_scan.db
+DB += MCT_energy_calibrations.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

@@ -1,0 +1,45 @@
+record(calcout,"$(P)MONO01_RUC_CALC1") {
+    field(DESC, "DMM Ru/C stripe energy true->MCT")
+    field(INPA, "$(P)MONO01_RUC_TRUE_E_SP CPP")
+    field(INPB, "1.105")
+    field(INPC, "-0.584")
+    field(CALC, "A*B+C")
+    field(PREC, "3")
+    field(OUT,  "$(P)MONO01_RUC_MCT_E_SP PP")
+}
+
+record(calcout,"$(P)MONO01_RUC_CALC2") {
+    field(DESC, "DMM Ru/C stripe energy MCT->true")
+    field(INPA, "$(P)MONO01_RUC_MCT_E CPP")
+    field(INPB, "1.105")
+    field(INPC, "-0.584")
+    field(CALC, "(A-C)/B")
+    field(PREC, "3")
+    field(OUT,  "$(P)MONO01_RUC_TRUE_E PP")
+}
+
+record(ao, "$(P)MONO01_RUC_TRUE_E_SP") {
+    field(DESC, "DMM Ru/C true energy SP")
+    field(EGU,  "keV")
+    field(PREC, "3")
+}
+record(ao, "$(P)MONO01_RUC_MCT_E_SP") {
+    field(DESC, "DMM Ru/C MCT energy SP")
+    field(EGU,  "keV")
+    field(PREC, "3")
+    field(OUT,  "$(P)MONO01_RUC_MCT_E PP")
+}
+
+record(ai,"$(P)MONO01_RUC_TRUE_E") {
+    field(DESC, "DMM Ru/C true energy")
+    field(EGU,  "keV")
+    field(PREC, "3")
+}
+
+record(ai,"$(P)MONO01_RUC_MCT_E") {
+    field(DESC, "DMM Ru/C MCT energy")
+    field(EGU,  "keV")
+    field(PREC, "3")
+}
+
+
