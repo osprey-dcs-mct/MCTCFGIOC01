@@ -16,10 +16,10 @@ DBD += MCTCFGIOC01.dbd
 MCTCFGIOC01_DBD += base.dbd
 
 # Include dbd files from all support applications:
-MCTCFGIOC01_DBD += asSupport.dbd
+MCTCFGIOC01_DBD += asSupport.dbd sscanSupport.dbd sscanProgressSupport.dbd
 
 # Add all the support libraries needed by this IOC
-MCTCFGIOC01_LIBS += autosave
+MCTCFGIOC01_LIBS += autosave sscan scanProgress
 
 # MCTCFGIOC01_registerRecordDeviceDriver.cpp derives from MCTCFGIOC01.dbd
 MCTCFGIOC01_SRCS += MCTCFGIOC01_registerRecordDeviceDriver.cpp

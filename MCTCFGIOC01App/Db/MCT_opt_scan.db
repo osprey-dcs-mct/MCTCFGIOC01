@@ -1,0 +1,41 @@
+record(calc, "MCTTBL01DAQ01:SumAll:MeanValue_RBV")
+{
+  field(SCAN, ".1 second")
+  field(CALC, "RNDM*100")
+}
+
+record(sscan,"$(P)MONO01_OPT_SCAN") {
+  field(DESC, "Intensity opt record")
+  field(MPTS, "$(MAXPTS=100)")
+}
+
+record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS") {
+  field(DESC, "Load OPT_SCAN settings")
+  field(PREC,"6")
+  field(PRE,"4")
+  field(OPRE,"$(P)MONO01_OPT_SCAN.CMND  CA NMS")
+  field(OSM,"$(P)MONO01_OPT_SCAN.P1SM  CA NMS")
+  field(AR,"RELATIVE")
+  field(OAR,"$(P)MONO01_OPT_SCAN.P1AR  CA NMS")
+  field(AFT,"PEAK POS")
+  field(OAFT,"$(P)MONO01_OPT_SCAN.PASM  CA NMS")
+  field(PPV,"MCTMONO01MOT06")
+  field(RPV,"MCTMONO01MOT06.RBV")
+  field(OPPV,"$(P)MONO01_OPT_SCAN.P1PV  CA NMS")
+  field(ORPV,"$(P)MONO01_OPT_SCAN.R1PV  CA NMS")
+  field(SP,"-.1")
+  field(OSP,"$(P)MONO01_OPT_SCAN.P1SP  CA NMS")
+  field(EP,".1")
+  field(OEP,"$(P)MONO01_OPT_SCAN.P1EP  CA NMS")
+  field(NP,"41")
+  field(ONP,"$(P)MONO01_OPT_SCAN.NPTS  CA NMS")
+  field(SC,"1")
+  field(OSC,"$(P)MONO01_OPT_SCAN.EXSC  CA NMS")
+  field(IMP,"$(P)MONO01_OPT_SCAN.MPTS  NPP NMS")
+  field(IACT,"$(P)MONO01_OPT_SCAN.BUSY  NPP NMS")
+  field(DPV, "MCTTBL01DAQ01:SumAll:MeanValue_RBV")
+  field(ODPV, "$(P)MONO01_OPT_SCAN.D01PV CA NMS")
+}
+
+
+

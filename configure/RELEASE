@@ -33,9 +33,11 @@ BUNDLE=/controls_sw/prod/centos_stream8-64/bundle_0030
 # If not using Asyn, Autosave and/or SNCSEQ, comment out here
 # and in $(TOP)/MCTDEVIOC04App/src/Makefile
 #
+#
 AUTOSAVE=$(BUNDLE)/epics/autosave
 AUTOSAVESETUP=$(BUNDLE)/epics/autosaveSetup
 CALC=$(BUNDLE)/epics/calc
+SSCAN=$(BUNDLE)/exc/sscan
 
 # All IOCs should include standard bundle/IOC status.
 #

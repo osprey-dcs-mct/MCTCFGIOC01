@@ -7,6 +7,7 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
 DB += MCT_config_user_inputs.db
+DB += MCT_opt_scan.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
