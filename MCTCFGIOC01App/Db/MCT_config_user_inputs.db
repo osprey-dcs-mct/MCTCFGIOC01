@@ -1,0 +1,165 @@
+record(ao, "$(P)ENERGY_SP") {
+    field(DESC, "MCT energy setpoint")
+    field(EGU,  "keV")
+    field(DRVL, "4.0")
+    field(DRVH, "40.0")
+    field(PREC, "2")
+    field(SDIS, "$(P)MONO01_STATUS_CMD")
+    field(DISV, "0")
+
+    info(autosaveFields, "VAL")
+}
+
+record(bi, "$(P)MONO01_STATUS_CMD") {
+    field(DESC, "MCT mono in-service selection")
+    field(ZNAM, "Out")
+    field(ONAM, "In")
+
+    info(autosaveFields, "VAL")
+}
+
+record(bi, "$(P)VBM01_STATUS_CMD") {
+    field(DESC, "MCT mirror in-service selection")
+    field(ZNAM, "Out")
+    field(ONAM, "In")
+
+    info(autosaveFields, "VAL")
+}
+
+record(bi, "$(P)MONO01_BANDWIDTH_CMD") {
+    field(DESC, "MCT energy bandwidth selection")
+    field(ZNAM, "0.5")
+    field(ONAM, "3.0")
+
+    info(autosaveFields, "VAL")
+}
+
+record(bi, "$(P)MONO01_STRIPE_RUC_CMD") {
+    field(DESC, "MCT mono Ru/C stripe selection")
+    field(ZNAM, "Not selected")
+    field(ONAM, "Selected")
+}
+
+record(bi, "$(P)MONO01_STRIPE_VB4C_CMD") {
+    field(DESC, "MCT mono V/B4C stripe selection")
+    field(ZNAM, "Not selected")
+    field(ONAM, "Selected")
+}
+
+record(bi, "$(P)MONO01_STRIPE_WB4C_CMD") {
+    field(DESC, "MCT mono W/B4C stripe selection")
+    field(ZNAM, "Not selected")
+    field(ONAM, "Selected")
+}
+
+record(mbbi, "$(P)MONO01_STRIPE_CMD") {
+    field(DESC, "MCT mono stripe selection")
+    field(ZRVL, "0")
+    field(ZRST, "None")
+    field(ONVL, "1")
+    field(ONST, "Ru/C")
+    field(TWVL, "2")
+    field(TWST, "V/B4C")
+    field(THVL, "3")
+    field(THST, "W/B4C")
+    field(FRVL, "4")
+    field(FRST, "Multiple")
+}
+
+record(calcout, "$(P)MONO01_STRIPE_CALC_") {
+    field(DESC, "Set mono stripe mbbi")
+    field(INPA, "$(P)MONO01_STRIPE_RUC_CMD CPP")
+    field(INPB, "$(P)MONO01_STRIPE_VB4C_CMD CPP")
+    field(INPC, "$(P)MONO01_STRIPE_WB4C_CMD CPP")
+    field(CALC, "A?1:B?2:C?3:0")
+    field(OUT,  "$(P)MONO01_STRIPE_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_ERR_CALC_")
+}
+
+record(calcout, "$(P)MONO01_STRIPE_ERR_CALC_") {
+    field(DESC, "Set mono stripe mbbi error")
+    field(INPA, "$(P)MONO01_STRIPE_RUC_CMD")
+    field(INPB, "$(P)MONO01_STRIPE_VB4C_CMD")
+    field(INPC, "$(P)MONO01_STRIPE_WB4C_CMD")
+    field(CALC, "A+B+C>1")
+    field(OCAL, "4")
+    field(DOPT, "Use OCAL")
+    field(OOPT, "When Non-zero")
+}
+
+record(bi, "$(P)VBM01_STRIPE_RH_CMD") {
+    field(DESC, "MCT mirror Rh stripe selection")
+    field(ZNAM, "Not selected")
+    field(ONAM, "Selected")
+}
+
+record(bi, "$(P)VBM01_STRIPE_PT_CMD") {
+    field(DESC, "MCT mirror Pt stripe selection")
+    field(ZNAM, "Not selected")
+    field(ONAM, "Selected")
+}
+
+record(mbbi, "$(P)VBM01_STRIPE_CMD") {
+    field(DESC, "MCT mirror stripe selection")
+    field(ZRVL, "0")
+    field(ZRST, "None")
+    field(ONVL, "1")
+    field(ONST, "Rh")
+    field(TWVL, "2")
+    field(TWST, "Pt")
+    field(THVL, "3")
+    field(THST, "Multiple")
+}
+
+record(calcout, "$(P)VBM01_STRIPE_CALC_") {
+    field(DESC, "Set mirror stripe mbbi")
+    field(INPA, "$(P)VBM01_STRIPE_RH_CMD CPP")
+    field(INPB, "$(P)VBM01_STRIPE_PT_CMD CPP")
+    field(CALC, "A?1:B?2:0")
+    field(OUT,  "$(P)VBM01_STRIPE_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_ERR_CALC_")
+}
+
+record(calcout, "$(P)VBM01_STRIPE_ERR_CALC_") {
+    field(DESC, "Set mirror stripe mbbi error")
+    field(INPA, "$(P)VBM01_STRIPE_RH_CMD")
+    field(INPB, "$(P)VBM01_STRIPE_PT_CMD")
+    field(CALC, "A+B+C>1")
+    field(OCAL, "3")
+    field(DOPT, "Use OCAL")
+    field(OOPT, "When Non-zero")
+}
+
+record(ao, "$(P)VBM01_CRIT_ENERGY_SP") {
+    field(DESC, "MCT mirror critical energy")
+    field(EGU,  "keV")
+    field(DRVL, "6.0")
+    field(DRVH, "80.0")
+    field(PREC, "2")
+
+    info(autosaveFields, "VAL")
+}
+
+record(calcout, "$(P)VBM01_CRIT_ENERGY_CALC_") {
+    field(DESC, "MCT mirror critical energy calc.")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "2.0")
+    field(CALC, "A*B")
+    field(OUT,  "$(P)VBM01_CRIT_ENERGY_SP PP")
+}
+
+record(bo, "$(P)MOVE_CMD") {
+    field(DESC, "MCT movement command")
+    field(ZNAM, "")
+    field(ONAM, "Move")
+}
+
+record(bi, "$(P)MOVE_STS") {
+    field(DESC, "MCT movement status")
+    field(ZNAM, "Complete")
+    field(ONAM, "Moving")
+}
+
+
+
+
