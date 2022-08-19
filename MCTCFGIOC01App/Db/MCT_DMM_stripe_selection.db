@@ -1,0 +1,28 @@
+# Determine appropriate DMM stripe
+record(calcout,"$(P)MONO01_STRIPE_RUC_SELECT") {
+    field(DESC, "DMM Ru/C stripe selection")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
+    field(INPC, "22.0")
+    field(CALC, "B=1?A<=C?1:0:0")
+    field(OUT,  "$(P)MONO01_STRIPE_RUC_CMD PP")
+}
+
+record(calcout,"$(P)MONO01_STRIPE_VB4CSELECT") {
+    field(DESC, "DMM V/B4C stripe selection")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
+    field(INPC, "25.0")
+    field(CALC, "B=0?A<=C?1:0:0")
+    field(OUT,  "$(P)MONO01_STRIPE_VB4C_CMD PP")
+}
+
+record(calcout,"$(P)MONO01_STRIPE_WB4C_SELECT") {
+    field(DESC, "DMM W/B4C stripe selection")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
+    field(INPC, "22.0")
+    field(INPD, "40.0")
+    field(CALC, "B=1?(A>C&&A<=D)?1:0:0")
+    field(OUT,  "$(P)MONO01_STRIPE_WB4C_CMD PP")
+}

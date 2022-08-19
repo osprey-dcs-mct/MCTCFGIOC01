@@ -27,6 +27,7 @@ set_pass0_restoreFile("info_positions.sav")
 dbLoadRecords("db/MCT_config_user_inputs.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCT_opt_scan.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCT_energy_calibrations.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCT_DMM_stripe_selection.db", "P=$(PREFIX)")
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit
