@@ -25,7 +25,7 @@ set_pass0_restoreFile("info_positions.sav")
 
 ## Load record instances
 dbLoadRecords("db/MCT_config_user_inputs.db", "P=$(PREFIX)")
-dbLoadRecords("db/MCT_opt_scan.db", "P=MCTSYS01:")
+dbLoadRecords("db/MCT_opt_scan.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCT_energy_calibrations.db", "P=$(PREFIX)")
 
 cd "${TOP}/iocBoot/${IOC}"
@@ -37,4 +37,4 @@ makeAutosaveFiles()
 create_monitor_set("info_positions.req", 5, "")
 create_monitor_set("info_settings.req", 15, "")
 
-dbpf MCTSYS01:MONO01_OPT_SCAN_PARMS.LOAD 1
+dbpf $(PREFIX)MONO01_OPT_SCAN_PARMS.LOAD 1

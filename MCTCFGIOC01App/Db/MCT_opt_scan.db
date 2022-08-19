@@ -1,6 +1,8 @@
 record(sscan,"$(P)MONO01_OPT_SCAN") {
   field(DESC, "Intensity opt record")
   field(MPTS, "$(MAXPTS=100)")
+  field(ATIME, ".1")
+  field(PDLY, ".1")
 }
 
 record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS") {
