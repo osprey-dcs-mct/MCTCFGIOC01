@@ -9,6 +9,7 @@ include $(TOP)/configure/CONFIG
 DB += MCT_config_user_inputs.db
 DB += MCT_opt_scan.db
 DB += MCT_energy_calibrations.db
+DB += MCT_DMM_stripe_selection.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
