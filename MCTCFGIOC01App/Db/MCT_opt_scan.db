@@ -24,14 +24,116 @@ record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS") {
   field(EP,".1")
   field(OEP,"$(P)MONO01_OPT_SCAN.P1EP  CA NMS")
   field(NP,"41")
+#  field(ONP,"$(P)MONO01_OPT_SCAN.NPTS  CA NMS")
+  field(ONP,"$(P)MONO01_OPT_SCAN_PARMS2.NP CA NMS")
+  field(SC,"1")
+#  field(OSC,"$(P)MONO01_OPT_SCAN.EXSC  CA NMS")
+  field(OSC, "")
+  field(IMP,"$(P)MONO01_OPT_SCAN.MPTS  NPP NMS")
+  field(IACT,"$(P)MONO01_OPT_SCAN.BUSY  NPP NMS")
+  field(DPV,"MCTTBL01DAQ01:SumAll:MeanValue_RBV")
+  field(ODPV,"$(P)MONO01_OPT_SCAN.D01PV CA NMS")
+  field(OLOAD,"$(P)MONO01_OPT_SCAN_PARMS2.LOAD CA NMS")
+  field(OGO,"$(P)MONO01_OPT_SCAN_PARMS2.GO CA NMS")
+}
+
+record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS2") {
+  field(DESC, "Load OPT_SCAN settings for P2")
+  field(PREC,"6")
+  field(PRE,"4")
+  field(OPRE,"")
+  field(OSM,"$(P)MONO01_OPT_SCAN.P2SM  CA NMS")
+  field(AR,"RELATIVE")
+  field(OAR,"$(P)MONO01_OPT_SCAN.P2AR  CA NMS")
+  field(AFT,"PRIOR POS")
+  field(OAFT,"")
+  field(OPPV,"$(P)MONO01_OPT_SCAN.P2PV  CA NMS")
+  field(ORPV,"$(P)MONO01_OPT_SCAN.R2PV  CA NMS")
+  field(SP,"-1")
+  field(OSP,"$(P)MONO01_OPT_SCAN.P2SP  CA NMS")
+  field(EP,"1")
+  field(OEP,"$(P)MONO01_OPT_SCAN.P2EP  CA NMS")
+  field(NP,"41")
   field(ONP,"$(P)MONO01_OPT_SCAN.NPTS  CA NMS")
   field(SC,"1")
   field(OSC,"$(P)MONO01_OPT_SCAN.EXSC  CA NMS")
   field(IMP,"$(P)MONO01_OPT_SCAN.MPTS  NPP NMS")
   field(IACT,"$(P)MONO01_OPT_SCAN.BUSY  NPP NMS")
-  field(DPV, "MCTTBL01DAQ01:SumAll:MeanValue_RBV")
-  field(ODPV, "$(P)MONO01_OPT_SCAN.D01PV CA NMS")
 }
 
+record(mbbo, "$(P)MONO01_OPT_SCAN_P2"){
+  field(DESC, "2nd Positioner Selection")
+  field(DTYP, "Raw Soft Channel")
+  field(ZRVL, 1)
+  field(ZRST, "NONE")
+  field(ONVL, 2)
+  field(ONST, "Table B1 Height")
+  field(TWVL, 3)
+  field(TWST, "Table B2 Height")
+  field(THVL, 4)
+  field(THST, "Table C1 Height")
+  field(FRVL, 5)
+  field(FRST, "Table C2 Height")
+  field(VAL, 0)
+  field(PINI, "YES")
+}
 
+record(fanout, "_$(P)MONO01_OPT_SCAN_P2SP"){
+  field(LNK1,"_$(P)MONO01_OPT_SCAN_P2_NOSP")
+  field(LNK2,"_$(P)MONO01_OPT_SCAN_P2_B1SP")
+  field(LNK3,"_$(P)MONO01_OPT_SCAN_P2_B2SP")
+  field(LNK4,"_$(P)MONO01_OPT_SCAN_P2_C1SP")
+  field(LNK5,"_$(P)MONO01_OPT_SCAN_P2_C2SP")
+  field(SELM,"Specified")
+  field(SELL,"$(P)MONO01_OPT_SCAN_P2.RVAL CP")
+}
+record(fanout, "_$(P)MONO01_OPT__SCAN_P2RB"){
+  field(LNK1,"_$(P)MONO01_OPT_SCAN_P2_NORB")
+  field(LNK2,"_$(P)MONO01_OPT_SCAN_P2_B1RB")
+  field(LNK3,"_$(P)MONO01_OPT_SCAN_P2_B2RB")
+  field(LNK4,"_$(P)MONO01_OPT_SCAN_P2_C1RB")
+  field(LNK5,"_$(P)MONO01_OPT_SCAN_P2_C2RB")
+  field(SELM,"Specified")
+  field(SELL,"$(P)MONO01_OPT_SCAN_P2.RVAL CP")
+}
 
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_NOSP"){
+  field(VAL,"")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.PPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_B1SP"){
+  field(VAL,"MCTTBL01:HEIGHT")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.PPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_B2SP"){
+  field(VAL,"MCTTBL02:HEIGHT")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.PPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_C1SP"){
+  field(VAL,"MCTTBL03:HEIGHT")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.PPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_C2SP"){
+  field(VAL,"MCTTBL04:HEIGHT")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.PPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_NORB"){
+  field(VAL,"")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.RPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_B1RB"){
+  field(VAL,"MCTTBL01:HEIGHT.RBV")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.RPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_B2RB"){
+  field(VAL,"MCTTBL02:HEIGHT.RBV")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.RPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_C1RB"){
+  field(VAL,"MCTTBL03:HEIGHT.RBV")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.RPV")
+}
+record(stringout, "_$(P)MONO01_OPT_SCAN_P2_C2RB"){
+  field(VAL,"MCTTBL04:HEIGHT.RBV")
+  field(OUT,"$(P)MONO01_OPT_SCAN_PARMS2.RPV")
+}
