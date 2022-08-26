@@ -38,4 +38,6 @@ makeAutosaveFiles()
 create_monitor_set("info_positions.req", 5, "")
 create_monitor_set("info_settings.req", 15, "")
 
+#Wait for PVs to connect before loading settings
+epicsThreadSleep 2
 dbpf $(PREFIX)MONO01_OPT_SCAN_PARMS.LOAD 1
