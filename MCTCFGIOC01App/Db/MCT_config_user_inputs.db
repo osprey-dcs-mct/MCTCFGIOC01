@@ -1,7 +1,7 @@
 record(ao, "$(P)ENERGY_SP") {
     field(DESC, "MCT energy setpoint")
     field(EGU,  "keV")
-    field(DRVL, "4.0")
+    field(DRVL, "8.0")
     field(DRVH, "40.0")
     field(PREC, "2")
     field(SDIS, "$(P)MONO01_STATUS_CMD")
@@ -28,8 +28,8 @@ record(bi, "$(P)VBM01_STATUS_CMD") {
 
 record(bi, "$(P)MONO01_BANDWIDTH_CMD") {
     field(DESC, "MCT energy bandwidth selection")
-    field(ZNAM, "0.5")
-    field(ONAM, "3.0")
+    field(ZNAM, "0.5%")
+    field(ONAM, "3.0%")
 
     info(autosaveFields, "VAL")
 }
@@ -56,6 +56,7 @@ record(mbbi, "$(P)MONO01_STRIPE_CMD") {
     field(DESC, "MCT mono stripe selection")
     field(ZRVL, "0")
     field(ZRST, "None")
+    field(ZRSV, "MINOR")
     field(ONVL, "1")
     field(ONST, "Ru/C")
     field(TWVL, "2")
@@ -64,6 +65,7 @@ record(mbbi, "$(P)MONO01_STRIPE_CMD") {
     field(THST, "W/B4C")
     field(FRVL, "4")
     field(FRST, "Multiple")
+    field(FRSV, "MAJOR")
 }
 
 record(calcout, "$(P)MONO01_STRIPE_CALC_") {
@@ -103,12 +105,14 @@ record(mbbi, "$(P)VBM01_STRIPE_CMD") {
     field(DESC, "MCT mirror stripe selection")
     field(ZRVL, "0")
     field(ZRST, "None")
+    field(ZRSV, "MINOR")
     field(ONVL, "1")
     field(ONST, "Rh")
     field(TWVL, "2")
     field(TWST, "Pt")
     field(THVL, "3")
     field(THST, "Multiple")
+    field(THSV, "MAJOR")
 }
 
 record(calcout, "$(P)VBM01_STRIPE_CALC_") {

@@ -1,0 +1,64 @@
+# Determine appropriate VBM stripe
+record(calcout, "$(P)VBM01_STRIPE_RH_SELECT") {
+    field(DESC, "VBM Rh stripe selection")
+    field(INPA, "$(P)VBM01_CRIT_ENERGY_SP CPP")
+    field(INPB, "14.296")
+    field(INPC, "18.794")
+    field(CALC, "A>=B&&A<C?1:0")
+    field(OUT,  "$(P)VBM01_STRIPE_RH_CMD PP")
+}
+
+record(calcout, "$(P)VBM01_STRIPE_PT_SELECT") {
+    field(DESC, "VBM Pt stripe selection")
+    field(INPA, "$(P)VBM01_CRIT_ENERGY_SP CPP")
+    field(INPB, "18.794")
+    field(CALC, "A>=B?1:0")
+    field(OUT,  "$(P)VBM01_STRIPE_PT_CMD PP")
+}
+
+# Allow manual selection of stripe
+# Rh
+record(ao, "$(P)VBM01_STRIPE_RH_MAN_SELECT") {
+    field(DESC, "VBM Rh stripe manual selection")
+    field(VAL,  "1")
+    field(OUT,  "$(P)VBM01_STRIPE_RH_CMD PP")
+    field(FLNK, "$(P)VBM01_STRIPE_RH_MAN_SELECT2")
+}
+
+record(ao, "$(P)VBM01_STRIPE_RH_MAN_SELECT2") {
+    field(DESC, "VBM Pt stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)VBM01_STRIPE_PT_CMD PP")
+}
+
+# Pt
+record(ao, "$(P)VBM01_STRIPE_PT_MAN_SELECT") {
+    field(DESC, "VBM Pt stripe manual selection")
+    field(VAL,  "1")
+    field(OUT,  "$(P)VBM01_STRIPE_PT_CMD PP")
+    field(FLNK, "$(P)VBM01_STRIPE_PT_MAN_SELECT2")
+}
+
+record(ao, "$(P)VBM01_STRIPE_PT_MAN_SELECT2") {
+    field(DESC, "VBM Rh stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)VBM01_STRIPE_RH_CMD PP")
+}
+
+# Determine stripe validity (for UI)
+record(calc, "$(P)VBM01_STRIPE_RH_UI_ENABLE") {
+    field(DESC, "VBM Rh stripe UI enable")
+    field(INPA, "$(P)VBM01_CRIT_ENERGY_SP CPP")
+    field(INPB, "14.296")
+    field(INPC, "$(P)VBM01_STATUS_CMD CPP")
+    field(CALC, "A>=B&&C=1?1:0")
+}
+
+record(calc, "$(P)VBM01_STRIPE_PT_UI_ENABLE") {
+    field(DESC, "VBM Pt stripe UI enable")
+    field(INPA, "$(P)VBM01_CRIT_ENERGY_SP CPP")
+    field(INPB, "18.794")
+    field(INPC, "$(P)VBM01_STATUS_CMD CPP")
+    field(CALC, "A>=B&&C=1?1:0")
+}
+

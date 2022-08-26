@@ -1,0 +1,19 @@
+# Determine appropriate bandwidth stripe
+record(calcout, "$(P)MONO01_BANDWIDTH_SELECT") {
+    field(DESC, "DMM bandwidth selection")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "25.0")
+    field(CALC, "A>B?1:0")
+    field(OUT,  "$(P)MONO01_BANDWIDTH_CMD PP")
+    field(OOPT, "When Non-zero")
+}
+
+# Enable bandwidth component in UI
+record(calc, "$(P)MONO01_BANDWIDTH_UI_ENABLE") {
+    field(DESC, "DMM bandwidth UI enable")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "25.0")
+    field(INPC, "$(P)MONO01_STATUS_CMD CPP")
+    field(CALC, "A<=B&&C=1?1:0")
+}
+

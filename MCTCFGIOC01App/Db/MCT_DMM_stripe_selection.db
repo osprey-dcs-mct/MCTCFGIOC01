@@ -1,28 +1,128 @@
 # Determine appropriate DMM stripe
-record(calcout,"$(P)MONO01_STRIPE_RUC_SELECT") {
+record(calcout, "$(P)MONO01_STRIPE_RUC_SELECT") {
     field(DESC, "DMM Ru/C stripe selection")
     field(INPA, "$(P)ENERGY_SP CPP")
     field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
     field(INPC, "22.0")
-    field(CALC, "B=1?A<=C?1:0:0")
+    field(CALC, "B=1&&A<=C?1:0")
     field(OUT,  "$(P)MONO01_STRIPE_RUC_CMD PP")
 }
 
-record(calcout,"$(P)MONO01_STRIPE_VB4CSELECT") {
+record(calcout, "$(P)MONO01_STRIPE_VB4C_SELECT") {
     field(DESC, "DMM V/B4C stripe selection")
     field(INPA, "$(P)ENERGY_SP CPP")
     field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
     field(INPC, "25.0")
-    field(CALC, "B=0?A<=C?1:0:0")
+    field(CALC, "B=0&&A<=C?1:0")
     field(OUT,  "$(P)MONO01_STRIPE_VB4C_CMD PP")
 }
 
-record(calcout,"$(P)MONO01_STRIPE_WB4C_SELECT") {
+record(calcout, "$(P)MONO01_STRIPE_WB4C_SELECT") {
     field(DESC, "DMM W/B4C stripe selection")
     field(INPA, "$(P)ENERGY_SP CPP")
     field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
-    field(INPC, "22.0")
+    field(INPC, "$(P)MONO01_STRIPE_RUC_SELECT.C CPP")
     field(INPD, "40.0")
-    field(CALC, "B=1?(A>C&&A<=D)?1:0:0")
+    field(CALC, "B=1&&A>C&&A<=D?1:0")
     field(OUT,  "$(P)MONO01_STRIPE_WB4C_CMD PP")
 }
+
+# Allow manual selection of stripe
+# Ru/C
+record(ao, "$(P)MONO01_STRIPE_RUC_MAN_SELECT") {
+    field(DESC, "DMM Ru/C stripe manual selection")
+    field(VAL,  "1")
+    field(OUT,  "$(P)MONO01_STRIPE_RUC_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_RUC_MAN_SELECT2")
+}
+
+record(ao, "$(P)MONO01_STRIPE_RUC_MAN_SELECT2") {
+    field(DESC, "DMM V/B4C stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)MONO01_STRIPE_VB4C_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_RUC_MAN_SELECT3")
+}
+
+record(ao, "$(P)MONO01_STRIPE_RUC_MAN_SELECT3") {
+    field(DESC, "DMM W/B4C stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)MONO01_STRIPE_WB4C_CMD PP")
+}
+
+# V/B4C
+record(ao, "$(P)MONO01_STRIPE_VB4C_MAN_SELECT") {
+    field(DESC, "DMM V/B4C stripe manual selection")
+    field(VAL,  "1")
+    field(OUT,  "$(P)MONO01_STRIPE_VB4C_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_VB4C_MAN_SELECT2")
+}
+
+record(ao, "$(P)MONO01_STRIPE_VB4C_MAN_SELECT2") {
+    field(DESC, "DMM Ru/C stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)MONO01_STRIPE_RUC_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_VB4C_MAN_SELECT3")
+}
+
+record(ao, "$(P)MONO01_STRIPE_VB4C_MAN_SELECT3") {
+    field(DESC, "DMM W/B4C stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)MONO01_STRIPE_WB4C_CMD PP")
+}
+
+# W/B4C
+record(ao, "$(P)MONO01_STRIPE_WB4C_MAN_SELECT") {
+    field(DESC, "DMM W/B4C stripe manual selection")
+    field(VAL,  "1")
+    field(OUT,  "$(P)MONO01_STRIPE_WB4C_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_WB4C_MAN_SELECT2")
+}
+
+record(ao, "$(P)MONO01_STRIPE_WB4C_MAN_SELECT2") {
+    field(DESC, "DMM Ru/C stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)MONO01_STRIPE_RUC_CMD PP")
+    field(FLNK, "$(P)MONO01_STRIPE_WB4C_MAN_SELECT3")
+}
+
+record(ao, "$(P)MONO01_STRIPE_WB4C_MAN_SELECT3") {
+    field(DESC, "DMM V/B4C stripe manual deselection")
+    field(VAL,  "0")
+    field(OUT,  "$(P)MONO01_STRIPE_VB4C_CMD PP")
+}
+
+record(ao, "$(P)MONO01_STRIPE_WB4C_MAN_SELECT") {
+    field(DESC, "DMM W/B4C stripe manual selection")
+    field(VAL,  "1")
+    field(OUT,  "$(P)MONO01_STRIPE_WB4C_CMD PP")
+}
+
+# Determine stripe validity (for UI)
+record(calc, "$(P)MONO01_STRIPE_RUC_UI_ENABLE") {
+    field(DESC, "DMM Ru/C stripe UI enable")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
+    field(INPC, "23.0")
+    field(INPD, "$(P)MONO01_STATUS_CMD CPP")
+    field(CALC, "B=1&&A<=C&&D=1?1:0")
+}
+
+record(calc, "$(P)MONO01_STRIPE_VB4C_UI_ENABLE") {
+    field(DESC, "DMM V/B4C stripe UI enable")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
+    field(INPC, "25.0")
+    field(INPD, "$(P)MONO01_STATUS_CMD CPP")
+    field(CALC, "B=0&&A<=C&&D=1?1:0")
+}
+
+record(calc, "$(P)MONO01_STRIPE_WB4C_UI_ENABLE") {
+    field(DESC, "DMM W/B4C stripe UI enable")
+    field(INPA, "$(P)ENERGY_SP CPP")
+    field(INPB, "$(P)MONO01_BANDWIDTH_CMD CPP")
+    field(INPC, "21.0")
+    field(INPD, "40.0")
+    field(INPE, "$(P)MONO01_STATUS_CMD CPP")
+    field(CALC, "B=1&&A>=C&&A<=D&&E=1?1:0")
+}
+
