@@ -1,0 +1,42 @@
+#VBM pitch calc definition
+record(calc, "$(P)VBM01_PITCH_CALC"){
+    field(DESC, "Calc for VBM pitch target")
+    field(PREC, "$(PREC=3)")
+    #Stripe selection (0-None, 1-Rh, 2-Pt, 3-Multiple)
+    field(INPA, "$(P)VBM01_STRIPE_CMD CP")
+    #Critical Energy SP
+    field(INPB, "$(P)VBM01_CRIT_ENERGY_SP CP")
+    field(INPC, "MCTVBM01:PITCH CP")
+    #if stripe == none or multiple, target equals current sp
+    field(CALC, "A=1?71.48/B:A=2?93.97/B:C")
+    field(PINI, "YES")
+    field(EGU,  "mrad")
+}
+
+record(dfanout, "$(P)VBM01_PITCH_MOVE"){
+    field(DOL, "$(P)VBM01_PITCH_CALC")
+    field(OMSL, "closed_loop")
+#    field(OUTA, "MCTVBM01:PITCH PP")
+}
+
+#VBM height calc 
+record(calc, "$(P)VBM01_HEIGHT_CALC"){
+    field(DESC, "Calc for VBM height target")
+    field(PREC, "$(PREC=3)")
+    field(INPA, "$(P)VBM01_STATUS_CMD CP")
+    field(INPB, "$(P)MONO01_STATUS_CMD CP")
+    field(INPC, "MCTMONO01MOT03.VAL CP")
+    field(INPD, "MCTVBM01:HEIGHT_PARK_POS CP") 
+    field(CALC, "A=0?D:B?C:0.0")
+    field(PINI, "YES")
+    field(EGU, "mm")
+ }
+
+record(dfanout, "$(P)VBM01_HEIGHT_MOVE")
+{
+    field(DOL, "$(P)VBM01_HEIGHT_CALC")
+    field(OMSL, "closed_loop")
+#    field(OUTA, "MCTVBM01:HEIGHT PP")
+}
+    
+

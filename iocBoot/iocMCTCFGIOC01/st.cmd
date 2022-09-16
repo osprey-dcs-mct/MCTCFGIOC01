@@ -7,6 +7,8 @@
 
 epicsEnvSet("IOCNAME", "MCTCFGIOC01")
 epicsEnvSet("PREFIX", "MCTCFG01:")
+epicsEnvSet("AS_PATH", "/asp/autosave/$(IOCNAME)")
+
 
 cd "${TOP}"
 
@@ -25,21 +27,33 @@ set_pass0_restoreFile("info_positions.sav")
 
 ## Load record instances
 dbLoadRecords("db/MCT_config_user_inputs.db", "P=$(PREFIX)")
-#dbLoadRecords("db/MCT_opt_scan.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCT_opt_scan.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCT_energy_calibrations.db", "P=$(PREFIX)")
-dbLoadRecords("db/MCT_DMM_stripe_selection.db", "P=$(PREFIX)")
-dbLoadRecords("db/MCT_DMM_bandwidth_selection.db", "P=$(PREFIX)")
-dbLoadRecords("db/MCT_VBM_stripe_selection.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCTMONO01_stripe_selection.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCTMONO01_bandwidth_selection.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCTMONO01_offset_selection.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCTVBM01_stripe_selection.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCT_config_control_seq.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCTVBM01_target.db", "P=$(PREFIX)")
+dbLoadRecords("db/MCTVBM01_park.db", "P=MCTVBM01:")
+dbLoadRecords("db/MCTMONO01_park.db", "P=MCTMONO01:")
 
 cd "${TOP}/iocBoot/${IOC}"
 iocInit
 
 ## Autosave monitor set-up.
 #
+cd "$(AS_PATH)"
 makeAutosaveFiles()
+
+set_requestfile_path("${AS_PATH}")
 create_monitor_set("info_positions.req", 5, "")
 create_monitor_set("info_settings.req", 15, "")
+
+# Start the sequence program
+seq mct_config_control "P=$(PREFIX)"
 
 #Wait for PVs to connect before loading settings
 epicsThreadSleep 2
 dbpf $(PREFIX)MONO01_OPT_SCAN_PARMS.LOAD 1
+

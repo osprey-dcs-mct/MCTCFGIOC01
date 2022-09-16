@@ -1,0 +1,93 @@
+# $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_config_control_seq.db $
+# $Revision: #1 $
+# $DateTime: 2022/09/13 02:16:53 $
+# Last checked in by: $Author: lewisw $
+#
+# Description:
+# Database provides user configuration control and status PVs.
+#
+# Copyright (c) 2022  Australian Synchrotron
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Sequence control and status PVs
+record(bo, "$(P)CONFIG_START") {
+    field(DESC, "MCT configuration start")
+    field(ZNAM, "")
+    field(ONAM, "Start")
+    field(HIGH, "1.0")
+}
+
+record(bo, "$(P)CONFIG_ABORT") {
+    field(DESC, "MCT configuration abort")
+    field(ZNAM, "")
+    field(ONAM, "Abort")
+    field(HIGH, "1.0")
+}
+
+record(mbbi, "$(P)CONFIG_STATUS") {
+    field(DESC, "MCT configuration status")
+    field(ZRVL, "0")
+    field(ZRST, "Idle")
+    field(ONVL, "1")
+    field(ONST, "Running")
+    field(TWVL, "2")
+    field(TWST, "Aborted")
+    field(THVL, "3")
+    field(THST, "Error")
+}
+
+record(mbbi, "$(P)CONFIG_STATE") {
+    field(DESC, "MCT configuration state")
+    field(ZRVL, "0")
+    field(ZRST, "Idle")
+    field(ONVL, "1")
+    field(ONST, "Moving mono")
+    field(TWVL, "2")
+    field(TWST, "Moving mirror")
+    field(THVL, "3")
+    field(THST, "Moving A beam slits")
+    field(FRVL, "4")
+    field(FRST, "Moving B slits")
+    field(FVVL, "5")
+    field(FVST, "Moving C slits")
+    field(SXVL, "6")
+    field(SXST, "Moving table")
+    field(SVVL, "7")
+    field(SVST, "Opening shutters")
+    field(EIVL, "8")
+    field(EIST, "Optimising intensity")
+}
+
+record(stringin, "$(P)CONFIG_MESSAGE") {
+    field(DESC, "MCT configuration message")
+}
+
+record(bi, "$(P)SEQUENCE_HEARTBEAT") {
+    field(DESC, "Sequence status PV")
+}

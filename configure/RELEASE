@@ -1,6 +1,6 @@
 # $File: //ASP/opa/mct/iocs/MCTCFGIOC01/configure/RELEASE $
-# $Revision: #1 $
-# $DateTime: 2022/08/18 06:42:20 $
+# $Revision: #3 $
+# $DateTime: 2022/09/13 02:16:53 $
 # Last checked in by: $Author: lewisw $
 #
 # basic_ioc RELEASE - Location of external support modules
@@ -38,6 +38,7 @@ AUTOSAVE=$(BUNDLE)/epics/autosave
 AUTOSAVESETUP=$(BUNDLE)/epics/autosaveSetup
 CALC=$(BUNDLE)/epics/calc
 SSCAN=$(BUNDLE)/exc/sscan
+SNCSEQ=$(BUNDLE)/epics/seq
 
 # All IOCs should include standard bundle/IOC status.
 #

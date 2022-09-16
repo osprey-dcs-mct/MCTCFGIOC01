@@ -1,0 +1,88 @@
+# $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCTMONO01_offset_selection.db $
+# $Revision: #3 $
+# $DateTime: 2022/09/14 09:07:30 $
+# Last checked in by: $Author: lewisw $
+#
+# Description:
+# Database to calculate required DMM offset
+#
+# Copyright (c) 2022  Australian Synchrotron
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+record(ao, "$(P)DMM_OFFSET_SP") {
+    field(DESC, "DMM offset setpoint")
+    field(EGU,  "mm")
+    field(PREC, "1")
+    field(DRVL, "8.8")
+    field(DRVH, "29.4")
+    field(PINI, "YES")
+}
+
+record(ai, "$(P)DMM_OFFSET_PRESET1") {
+    field(DESC, "DMM offset 1")
+    field(VAL,  "14.0")
+    field(EGU,  "mm")
+    field(PREC, "1")
+    field(PINI, "YES")
+
+    info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)DMM_OFFSET_PRESET2") {
+    field(DESC, "DMM offset 2")
+    field(VAL,  "20.0")
+    field(EGU,  "mm")
+    field(PREC, "1")
+    field(PINI, "YES")
+
+    info(autosaveFields, "VAL")
+}
+
+record(ai, "$(P)DMM_OFFSET_PRESET3") {
+    field(DESC, "DMM offset 3")
+    field(VAL,  "23.5")
+    field(EGU,  "mm")
+    field(PREC, "1")
+    field(PINI, "YES")
+
+    info(autosaveFields, "VAL")
+}
+
+record(calcout, "$(P)DMM_OFFSET_SELECT") {
+    field(DESC, "DMM offset selector")
+    field(INPA, "$(P)DMM_OFFSET_PRESET1 CPP")
+    field(INPB, "$(P)DMM_OFFSET_PRESET2 CPP")
+    field(INPC, "$(P)DMM_OFFSET_PRESET3 CPP")
+    field(INPD, "$(P)ENERGY_SP CPP")
+    field(INPE, "$(P)MONO01_STRIPE_RUC_CMD CPP")
+    field(INPF, "$(P)MONO01_STRIPE_VB4C_CMD CPP")
+    field(INPG, "$(P)MONO01_STRIPE_WB4C_CMD CPP")
+    field(CALC, "E||F?C:G?A:B")
+    field(OUT,  "$(P)DMM_OFFSET_SP PP")
+}
