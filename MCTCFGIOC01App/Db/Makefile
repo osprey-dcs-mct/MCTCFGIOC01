@@ -20,6 +20,7 @@ DB += MCTVBM01_park.db
 DB += MCT_motor_compare.template
 DB += MCT_pv_compare.template
 DB += MCT_trigger_compare.template
+DB += MCT_component_compare.template
 DB += MCT_compare.substitutions
 
 #----------------------------------------------------

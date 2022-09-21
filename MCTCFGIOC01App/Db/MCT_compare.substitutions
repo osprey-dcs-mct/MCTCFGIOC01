@@ -73,6 +73,50 @@ pattern
 {"MCTMONO01:STRIPE_REQUEST_CMD","0.1"}
 }
 
+#Save/compare component status
+#COMPONENT - New PV with component status in the format $(COMPONENT)CFG_STS
+#STS1-STS4 - Input links to monitor, any input set to 1 will trigger the component status alarm (empty macros are ignored!)
+file "db/MCT_component_compare.template"
+{
+pattern
+{COMPONENT,     
+STS1,                       
+STS2,                       
+STS3,                       
+STS4,
+STS5,
+STS6}
+{"MCTMONO01:",   
+"MCTMONO01MOT06_CFG_STS CP",   
+"MCTMONO01MOT07_CFG_STS CP",  
+"MCTMONO01MOT03_CFG_STS CP",    
+"MCTMONO01:STRIPE_REQUEST_CMD_CFG_STS CP"}
+{"MCTVBM01:",
+"MCTVBM01:PITCH_CFG_STS CP"}
+{"MCTSLT01:",
+"MCTSLT01:HSIZE_CFG_STS",
+"MCTSLT01:VSIZE_CFG_STS",
+"MCTSLT01:HCENTRE_CFG_STS".
+"MCTSLT01:VCENTRE_CFG_STS"}
+{"MCTSLT02:",
+"MCTSLT02:HSIZE_CFG_STS",
+"MCTSLT02:VSIZE_CFG_STS",
+"MCTSLT02:HCENTRE_CFG_STS".
+"MCTSLT02:VCENTRE_CFG_STS"}
+{"MCTSLT03:",
+"MCTSLT03:HSIZE_CFG_STS",
+"MCTSLT03:VSIZE_CFG_STS",
+"MCTSLT03:HCENTRE_CFG_STS".
+"MCTSLT03:VCENTRE_CFG_STS"}
+{"MCTALL:",
+"MCTMONO01:CFG_STS",
+"MCTVBM01:CFG_STS",
+"MCTSLT01:CFG_STS",
+"MCTSLT02:CFG_STS",
+"MCTSLT03:CFG_STS",
+"MCTCFG01:TABLE_SELECT_CFG_STS"}
+}
+
 #global file that triggers all PVs
 #PV1-PVI - PV to trigger
 #The template creates MCTCFG01:CONFIG_SAVE to start the chain
@@ -99,3 +143,4 @@ pattern
 "_MCTCFG01:TABLE_SELECT_CFG.PROC",
 "_MCTMONO01:STRIPE_REQUEST_CMD_CFG.PROC"} 
 }
+
