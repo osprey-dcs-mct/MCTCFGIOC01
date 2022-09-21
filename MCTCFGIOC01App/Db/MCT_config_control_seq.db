@@ -1,6 +1,6 @@
 # $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_config_control_seq.db $
-# $Revision: #1 $
-# $DateTime: 2022/09/13 02:16:53 $
+# $Revision: #5 $
+# $DateTime: 2022/09/21 08:38:16 $
 # Last checked in by: $Author: lewisw $
 #
 # Description:
@@ -50,16 +50,43 @@ record(bo, "$(P)CONFIG_ABORT") {
     field(HIGH, "1.0")
 }
 
+record(bo, "$(P)CONFIG_CONTINUE") {
+    field(DESC, "MCT configuration continue")
+    field(ZNAM, "")
+    field(ONAM, "Continue")
+    field(HIGH, "1.0")
+}
+
+record(bi, "$(P)CONFIG_CONTINUE_LED") {
+    field(DESC, "MCT configuration continue LED")
+    field(ZNAM, "")
+    field(ONAM, "")
+}
+
+record(bi, "$(P)CONFIG_SEQ_MODE") {
+    field(DESC, "MCT sequence mode")
+    field(ZNAM, "Continuous")
+    field(ONAM, "Single step")
+    field(PINI, "YES")
+
+    info(autosaveFields, "VAL")
+}
+
 record(mbbi, "$(P)CONFIG_STATUS") {
     field(DESC, "MCT configuration status")
+    field(PINI, "YES")
     field(ZRVL, "0")
     field(ZRST, "Idle")
+    field(ZRSV, "NO ALARM")
     field(ONVL, "1")
     field(ONST, "Running")
+    field(ONSV, "NO ALARM")
     field(TWVL, "2")
     field(TWST, "Aborted")
+    field(TWSV, "MINOR")
     field(THVL, "3")
     field(THST, "Error")
+    field(THSV, "MAJOR")
 }
 
 record(mbbi, "$(P)CONFIG_STATE") {
@@ -85,7 +112,22 @@ record(mbbi, "$(P)CONFIG_STATE") {
 }
 
 record(stringin, "$(P)CONFIG_MESSAGE") {
-    field(DESC, "MCT configuration message")
+    field(DESC, "MCT config. status message")
+    field(PINI, "YES")
+    field(VAL,  "Starting up")
+}
+
+record(stringin, "$(P)CONFIG_MESSAGE_PREV") {
+    field(DESC, "MCT config. previous status message")
+    field(PINI, "YES")
+    field(VAL,  "---")
+    field(INP,  "$(P)CONFIG_MESSAGE")
+}
+
+record(stringin, "$(P)ERROR_MESSAGE") {
+    field(DESC, "MCT config. error message")
+    field(PINI, "YES")
+    field(VAL,  "No error")
 }
 
 record(bi, "$(P)SEQUENCE_HEARTBEAT") {

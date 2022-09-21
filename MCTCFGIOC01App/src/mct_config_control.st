@@ -53,14 +53,39 @@ short config_abort;
 assign config_abort to "{P}CONFIG_ABORT";
 monitor config_abort;
 
+short config_seq_mode;
+assign config_seq_mode to "{P}CONFIG_SEQ_MODE";
+monitor config_seq_mode;
+// 0 = Continuous
+// 1 = Single step
+
+short config_continue;
+assign config_continue to "{P}CONFIG_CONTINUE";
+monitor config_continue;
+evflag config_continue_ef;
+sync config_continue to config_continue_ef;
+
+short config_continue_led;
+assign config_continue_led to "{P}CONFIG_CONTINUE_LED";
+
 short config_status;
 assign config_status to "{P}CONFIG_STATUS";
+// 0 = Idle
+// 1 = Running
+// 2 = Aborted
+// 3 = Error
 
 short config_state;
 assign config_state to "{P}CONFIG_STATE";
 
 string config_message;
 assign config_message to "{P}CONFIG_MESSAGE";
+
+short config_message_prev_proc;
+assign config_message_prev_proc to "{P}CONFIG_MESSAGE_PREV.PROC";
+
+string error_message;
+assign error_message to "{P}ERROR_MESSAGE";
 
 // Device PVs
 // MCTMONO01
@@ -207,8 +232,26 @@ short tbl04_pitch_stop;
 short tbl04_height_stop;
 //assign tbl04_height_stop to "MCTTBL04:CS2:HEIGHT.STOP";
 
+// Shutters
+// Front end
+short front_end_shutter_request;
+assign front_end_shutter_request to "MCTFE02SHT01:OPEN_CLOSE_CMD";
+// 0 = No Action
+// 1 = Close
+// 2 = Open
+
+short front_end_shutter_status;
+assign front_end_shutter_status to "MCTFE02SHT01:OPEN_CLOSE_STATUS";
+monitor front_end_shutter_status;
+// 2 = Close
+// 3 = Open
+
+// A Hutch
+// Placeholder
+
 // Variables
 float heartbeat_period;
+float continue_blink_period;
 short PAUSE;
 short GO;
 short white_beam_first;
@@ -217,6 +260,7 @@ short slt01_op_mode_previous;
 short slt02_op_mode_previous;
 short slt03_op_mode_previous;
 short dmm_control_mode_previous;
+evflag state_finished_ef;
 
 ss mct_config {
     state init {
@@ -224,18 +268,34 @@ ss mct_config {
             // Define constants
             PAUSE = 1;
             GO = 3;
+            config_status = 0;
+            pvPut(config_status);
         } state idle
     }
 
     state idle {
         entry {
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Waiting for user");
             pvPut(config_message);
+            efClear(state_finished_ef);
         }
-            
+
+        when((config_start == 1) &&
+                (pvAssignCount() != pvConnectCount())) {
+            strcpy(error_message, "Not all PVs connected");
+            pvPut(error_message);
+            config_status = 3;
+            pvPut(config_status);
+        } state idle
+
         when(config_start == 1) {
             config_status = 1; // RUNNING
             pvPut(config_status);
+
+            strcpy(error_message, "No error");
+            pvPut(error_message);
 
             // Store the slit control modes so that we can restore
             // them at the end of the program
@@ -258,7 +318,6 @@ ss mct_config {
             pvPut(slt01_op_mode);
             pvPut(slt02_op_mode);
             pvPut(slt03_op_mode);
-
         } state determine_shutter
 
         // Allow sequence stop button to act as an 'All Stop'
@@ -268,10 +327,11 @@ ss mct_config {
 
     state determine_shutter {
         entry {
-            // Add logic here to work out whether to move
-            // white beam slits or mono/mirror first.
-
-            strcpy(config_message, "Determining shutter closure");
+            efClear(state_finished_ef);
+            // Work out whether to move white beam slits or mono/mirror first.
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Shutter close req'd?");
             pvPut(config_message);
 
             pvGet(dmm_status_request);
@@ -284,22 +344,45 @@ ss mct_config {
             pvGet(mirror_stripe_user_request);
             pvGet(mirror_stripe_current);
 
-            if(dmm_status_request != dmm_in_service_status ||
-                    strcmp(dmm_stripe_user_request, dmm_stripe_request_str) != 0 ||
-                    mirror_status_request != mirror_in_service_status ) {
-                    //mirror_status_request != mirror_in_service_status ||
-                    //!strcmp(mirror_stripe_user_request, mirror_stripe_current)) {
+            //printf("determine_shutter: dmm_status_request = %d\n", dmm_status_request);
+            //printf("determine_shutter: dmm_in_service_status = %d\n", dmm_in_service_status);
+            //printf("determine_shutter: dmm_stripe_user_request = %s\n", dmm_stripe_user_request);
+            //printf("determine_shutter: dmm_stripe_request_str = %s\n", dmm_stripe_request_str);
+            //printf("determine_shutter: mirror_status_request = %d\n", mirror_status_request);
+            //printf("determine_shutter: mirror_in_service_status = %d\n", mirror_in_service_status);
+            //printf("determine_shutter: mirror_stripe_user_request = %s\n", mirror_stripe_user_request);
+            //printf("determine_shutter: mirror_stripe_current = %s\n", mirror_stripe_current);
+
+            if(
+                    // Change in DMM status
+                    (dmm_status_request != dmm_in_service_status) ||
+                    // Change in DMM stripe
+                    (strcmp(dmm_stripe_user_request, dmm_stripe_request_str) != 0) ||
+                    // Change in VBM status with mono out of service
+                    (dmm_status_request == 0 && 
+                     mirror_status_request != mirror_in_service_status )) {
+                // Change in VBM stripe with mono out of service
+                //(dmm_status_request == 0 &&
+                //strcmp(mirror_stripe_user_request, mirror_stripe_current) != 0)) 
                 shutter_close_required = 1;
             }
             else {
                 shutter_close_required = 0;
             }
+
+            efSet(state_finished_ef);
         }
 
-        when (delay(1.0) && shutter_close_required == 0) {
+        when (delay(1.0) && 
+                shutter_close_required == 0 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state determine_order
 
-        when (delay(1.0) && shutter_close_required == 1) {
+        when (delay(1.0) && 
+                shutter_close_required == 1 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state close_shutter
 
         when (config_abort == 1) {
@@ -308,28 +391,53 @@ ss mct_config {
 
     state close_shutter {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Closing shutter");
             pvPut(config_message);
 
-            printf("close_shutter: entering\n");
-
-            //TODO: Add code to close shutter here.
+            pvGet(front_end_shutter_status);
+            if (front_end_shutter_status == 3) {
+                front_end_shutter_request = 1;
+                //pvPut(front_end_shutter_request);
+            }
+            efSet(state_finished_ef);
         }
 
+        when(front_end_shutter_status == 2) {
+        } state move_mono_y1
+
+        when (delay(5.0)) {
+            strcpy(error_message, "Shutter close timeout");
+            pvPut(error_message);
+            config_status = 3;
+            pvPut(config_status);
+        } state abort
+
+        // TODO: Delete this after shutter control enabled
         when (delay(2.0)) {
             // TODO: Add shutter closed readback here
         } state move_mono_y1
 
         when (config_abort == 1) {
         } state abort
+
+        exit {
+            front_end_shutter_request = 0;
+            //pvPut(front_end_shutter_request);
+        }
     }
 
     state determine_order {
         entry {
+            efClear(state_finished_ef);
             // Add logic here to work out whether to move
             // white beam slits or mono/mirror first.
 
-            strcpy(config_message, "Determining move order");
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Eval. move order");
             pvPut(config_message);
 
             pvGet(dmm_status_request);
@@ -357,38 +465,51 @@ ss mct_config {
                 }
             }
             printf("determine_order: white_beam_first = %d\n", white_beam_first);
+            efSet(state_finished_ef);
         }
 
 
         // Monochromatic beam mode
-        when (dmm_status_request == 1 && white_beam_first == 1) {
+        when (dmm_status_request == 1 && white_beam_first == 1 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state set_up_mono_config
 
-        when (dmm_status_request == 1 && white_beam_first == 0) {
+        when (dmm_status_request == 1 && white_beam_first == 0 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state move_mono_before_slits
 
         // Pink beam mode
         when (dmm_status_request == 0 &&
                 mirror_status_request == 1 &&
-                white_beam_first == 1) {
+                white_beam_first == 1 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state move_white_beam_slits_then_mirror
 
         when (dmm_status_request == 0 &&
                 mirror_status_request == 1 &&
-                white_beam_first == 0) {
+                white_beam_first == 0 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state move_mirror
 
         // If we get to here, then we can go straight to moving the slits
         // as the mirror and mono positions are not changing
-        when (dmm_status_request == 0 && mirror_status_request == 0) {
+        when (dmm_status_request == 0 && 
+                mirror_status_request == 0 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state move_slt01
 
         when (config_abort == 1) {
         } state abort
     }
-            
+
     state set_up_mono_config {
         entry {
+            efClear(state_finished_ef);
             printf("set_up_mono_config: entering\n");
 
             config_state = 3; // Moving white beam slits
@@ -458,11 +579,14 @@ ss mct_config {
 
     state move_white_beam_slits {
         entry {
+            efClear(state_finished_ef);
             //pvGet(dmm_p1_sp);
             //printf("move_white_beam_slits: dmm_p1_sp = %f\n", dmm_p1_sp);
 
             // setpoint for the P1 motor has updated
-            strcpy(config_message, "Moving MCTSLT01 before mono");
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Move Slits A before mono");
             pvPut(config_message);
 
             printf("move_white_beam_slits: command A slits to move\n");
@@ -482,6 +606,9 @@ ss mct_config {
 
     state reenable_mono {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Moving DMM");
             pvPut(config_message);
             printf("reenable_mono: entering\n");
@@ -504,6 +631,7 @@ ss mct_config {
 
     state move_mono {
         entry {
+            efClear(state_finished_ef);
             // Retrigger the mono positioning application
             // to ensure the motors move.
             dmm_energy_request_cmd = 1;
@@ -520,10 +648,13 @@ ss mct_config {
 
     state move_mono_y1 {
         entry {
+            efClear(state_finished_ef);
             printf("move_mono_y1: entering\n");
 
             if (dmm_status_request == 1) {
                 // Make sure the Y1 motor is in the correct position
+                config_message_prev_proc = 1;
+                pvPut(config_message_prev_proc);
                 strcpy(config_message, "Moving DMM Y1");
                 pvPut(config_message);
 
@@ -540,6 +671,7 @@ ss mct_config {
 
     state move_mono_before_slits {
         entry {
+            efClear(state_finished_ef);
             printf("move_mono_before_slits: entering\n");
             config_state = 1; // Moving mono
             pvPut(config_state);
@@ -566,6 +698,8 @@ ss mct_config {
                 dmm_energy_request = energy_request;
                 pvPut(dmm_energy_request);
 
+                config_message_prev_proc = 1;
+                pvPut(config_message_prev_proc);
                 strcpy(config_message, "Moving DMM");
                 pvPut(config_message);
 
@@ -585,7 +719,9 @@ ss mct_config {
             }
 
             if (dmm_status_request == 0) {
-                strcpy(config_message, "Moving DMM out of beam");
+                config_message_prev_proc = 1;
+                pvPut(config_message_prev_proc);
+                strcpy(config_message, "Moving DMM out");
                 pvPut(config_message);
 
                 dmm_park_proc = 1;
@@ -594,13 +730,17 @@ ss mct_config {
         }
 
         when (delay(1.0) && dmm_status_request == 1 && dmm_done_moving == 1) {
-            strcpy(config_message, "Completed mono movement");
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "DMM move done");
             pvPut(config_message);
         } state move_mirror
 
         when (dmm_status_request == 0 && 
                 pvPutComplete(dmm_park_proc)) {
-            strcpy(config_message, "Moved mono out of beam");
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moved DMM out");
             pvPut(config_message);
         }  state move_mirror
 
@@ -610,10 +750,13 @@ ss mct_config {
 
     state move_white_beam_slits_then_mirror {
         entry {
+            efClear(state_finished_ef);
             config_state = 3; // Moving white beam slits
             pvPut(config_state);
 
-            strcpy(config_message, "Closing A slits");
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Closing Slits A");
             pvPut(config_message);
 
             mirror_pitch_spmg = PAUSE;
@@ -642,6 +785,9 @@ ss mct_config {
 
     state move_mirror_pitch {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Move mirror pitch");
             pvPut(config_message);
 
@@ -659,6 +805,7 @@ ss mct_config {
 
     state move_mirror {
         entry {
+            efClear(state_finished_ef);
             if (mirror_status_request == 1) {
                 mirror_height_move_proc = 1;
                 pvPut(mirror_height_move_proc, SYNC);
@@ -672,6 +819,8 @@ ss mct_config {
                 mirror_park_proc = 1;
                 pvPut(mirror_park_proc, ASYNC);
 
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
                 strcpy(config_message, "Parking mirror");
                 pvPut(config_message);
             }
@@ -689,7 +838,10 @@ ss mct_config {
 
     state move_slt01 {
         entry {
-            strcpy(config_message, "Moving MCTSLT01");
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving Slits A");
             pvPut(config_message);
 
             slt01_all_move_proc = 1;
@@ -706,7 +858,10 @@ ss mct_config {
 
     state move_slt02 {
         entry {
-            strcpy(config_message, "Moving MCTSLT02");
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving Slits B");
             pvPut(config_message);
 
             slt02_all_move_proc = 1;
@@ -723,7 +878,10 @@ ss mct_config {
 
     state move_slt03 {
         entry {
-            strcpy(config_message, "Moving MCTSLT03");
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving Slits C");
             pvPut(config_message);
 
             slt03_all_move_proc = 1;
@@ -740,7 +898,10 @@ ss mct_config {
 
     state move_table {
         entry {
-            strcpy(config_message, "Moving selected table");
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving table");
             pvPut(config_message);
 
             // TODO: Add table movement code here
@@ -755,12 +916,35 @@ ss mct_config {
 
     state open_shutter {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Opening shutter");
             pvPut(config_message);
 
-            // TODO: Add shutter open code here
+            pvGet(front_end_shutter_status);
+            if (front_end_shutter_status == 2) {
+                front_end_shutter_request = 1;
+                //pvPut(front_end_shutter_request);
+            }
         }
 
+        when((front_end_shutter_status == 3) &&
+                dmm_status_request == 1) { 
+        } state optimize_intensity
+
+        when((front_end_shutter_status == 3) &&
+                dmm_status_request != 1) { 
+        } state restore_state
+
+        when (delay(5.0)) {
+            strcpy(error_message, "Shutter close timeout");
+            pvPut(error_message);
+            config_status = 3;
+            pvPut(config_status);
+        } state abort
+
+        // TODO: Remove these two states when shutter control added
         when (delay(1.0) && 
                 dmm_status_request == 1) {
         } state optimize_intensity
@@ -771,10 +955,18 @@ ss mct_config {
 
         when (config_abort == 1) {
         } state abort
+
+        exit {
+            front_end_shutter_request = 0;
+            //pvPut(front_end_shutter_request);
+        }
     }
 
     state optimize_intensity {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Optimizing intensity");
             pvPut(config_message);
 
@@ -790,8 +982,17 @@ ss mct_config {
 
     state abort {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
             strcpy(config_message, "Aborting movements");
             pvPut(config_message);
+
+            strcpy(error_message, "Abort requested");
+            pvPut(error_message);
+
+            config_status = 2;
+            pvPut(config_status);
 
             dmm_stop = 1;
             mirror_stop = 1;
@@ -831,6 +1032,11 @@ ss mct_config {
 
     state restore_state {
         entry {
+            efClear(state_finished_ef);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Restoring config.");
+            pvPut(config_message);
             // Restore the slit operation modes to their
             // values before the sequence ran
             slt01_op_mode = slt01_op_mode_previous;
@@ -844,32 +1050,78 @@ ss mct_config {
             pvPut(dmm_control_mode);
         }
         when(delay(1.0)) {
+            pvGet(config_status);
+            if (config_status == 1) {
+                config_status = 0;
+                pvPut(config_status);
+            }
         } state idle
     }
 
+}
+
+ss mct_config_heartbeat {
+    state init {
+        when() {
+            heartbeat_period = 2.0;
+        } state heartbeat_on
     }
 
-    ss mct_config_heartbeat {
-        state init {
-            when() {
-                heartbeat_period = 2.0;
-            } state heartbeat_on
-        }
-
-        state heartbeat_on {
-            when (delay(heartbeat_period / 2)) {
-                sequence_heartbeat = 1;
-                pvPut(sequence_heartbeat);
-            } state heartbeat_off
-        }
-
-        state heartbeat_off {
-            when (delay(heartbeat_period / 2)) {
-                sequence_heartbeat = 0;
-                pvPut(sequence_heartbeat);
-            } state heartbeat_on
-        }
+    state heartbeat_on {
+        when (delay(heartbeat_period / 2)) {
+            sequence_heartbeat = 1;
+            pvPut(sequence_heartbeat);
+        } state heartbeat_off
     }
+
+    state heartbeat_off {
+        when (delay(heartbeat_period / 2)) {
+            sequence_heartbeat = 0;
+            pvPut(sequence_heartbeat);
+        } state heartbeat_on
+    }
+}
+
+ss mct_seq_continue {
+    state continue_led_off {
+        entry {
+            continue_blink_period = 2.0;
+            config_continue_led = 0;
+            pvPut(config_continue_led);
+        }
+       
+        when (config_seq_mode == 1 && efTest(state_finished_ef)) {
+        } state continue_blink_on
+    } 
+
+    state continue_blink_on {
+        when (delay(continue_blink_period / 2) &&
+                efTest(state_finished_ef)) {
+            config_continue_led = 1;
+            pvPut(config_continue_led);
+        } state continue_blink_off
+
+        when (config_seq_mode == 0) {
+        } state continue_led_off
+         
+        when (!efTest(state_finished_ef)) {
+        } state continue_led_off
+    }
+
+    state continue_blink_off {
+        when (delay(continue_blink_period / 2) &&
+                efTest(state_finished_ef)) {
+            config_continue_led = 0;
+            pvPut(config_continue_led);
+        } state continue_blink_on
+
+        when (config_seq_mode == 0) {
+        } state continue_led_off
+         
+        when (!efTest(state_finished_ef)) {
+        } state continue_led_off
+    }
+}
 
 
 
