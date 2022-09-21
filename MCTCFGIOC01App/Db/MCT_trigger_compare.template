@@ -1,0 +1,83 @@
+# $File: $
+# $Revision:  $
+# $DateTime:  $
+# Last checked in by: $Author: $
+#
+# Description:
+# Database to calculate MCT energy from true energy
+#
+# Copyright (c) 2022  Australian Synchrotron
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+record(seq,"$(P)CONFIG_SAVE")
+{
+    field(SELM, "All")
+    field(DOL1,"1")
+    field(LNK1,"$(PV1)")
+    field(DOL2,"1")
+    field(LNK2,"$(PV2)")
+    field(DOL3,"1")
+    field(LNK3,"$(PV3)")
+    field(DOL4,"1")
+    field(LNK4,"$(PV4)")
+    field(DOL5,"1")
+    field(LNK5,"$(PV5)")
+    field(DOL6,"1")
+    field(LNK6,"$(PV6)")
+    field(DOL7,"1")
+    field(LNK7,"$(PV7)")
+    field(DOL8,"1")
+    field(LNK8,"$(PV8)")
+    field(DOL9,"1")
+    field(LNK9,"$(PV9)")
+    field(DOLA,"1")
+    field(LNKA,"$(P)CONFIG_SAVE2.PROC")
+}
+record(seq,"$(P)CONFIG_SAVE2")
+{
+    field(SELM, "All")
+    field(DOL1,"1")
+    field(LNK1,"$(PVA)")
+    field(DOL2,"1")
+    field(LNK2,"$(PVB)")
+    field(DOL3,"1")
+    field(LNK3,"$(PVC)")
+    field(DOL4,"1")
+    field(LNK4,"$(PVD)")
+    field(DOL5,"1")
+    field(LNK5,"$(PVE)")
+    field(DOL6,"1")
+    field(LNK6,"$(PVF)")
+    field(DOL7,"1")
+    field(LNK7,"$(PVG)")
+    field(DOL8,"1")
+    field(LNK8,"$(PVH)")
+    field(DOL9,"1")
+    field(LNK9,"$(PVI)")
+}

@@ -17,6 +17,10 @@ DB += MCT_config_control_seq.db
 DB += MCTVBM01_target.db
 DB += MCTMONO01_park.db
 DB += MCTVBM01_park.db
+DB += MCT_motor_compare.template
+DB += MCT_pv_compare.template
+DB += MCT_trigger_compare.template
+DB += MCT_compare.substitutions
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

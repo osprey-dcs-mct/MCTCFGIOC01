@@ -38,6 +38,9 @@ dbLoadRecords("db/MCTVBM01_target.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCTVBM01_park.db", "P=MCTVBM01:")
 dbLoadRecords("db/MCTMONO01_park.db", "P=MCTMONO01:")
 
+#End of Scan save/compare positions
+dbLoadTemplate("db/MCT_compare.substitutions","P=$(PREFIX)")
+
 cd "${TOP}/iocBoot/${IOC}"
 iocInit
 

@@ -1,0 +1,101 @@
+# $File: $
+# $Revision:  $
+# $DateTime:  $
+# Last checked in by: $Author: $
+#
+# Description:
+# Database to calculate MCT energy from true energy
+#
+# Copyright (c) 2022  Australian Synchrotron
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#Save/compare motor positions
+#PV - motor record PV name
+#The template creates _$(PV)_CFG_STS for status monitoring
+file "db/MCT_motor_compare.template"
+{
+pattern
+{PV}
+{"MCTMONO01MOT06"}
+{"MCTMONO01MOT07"}
+{"MCTMONO01MOT03"}
+{"MCTVBM01:PITCH"}
+{"MCTSLT01:HSIZE"}
+{"MCTSLT01:VSIZE"}
+{"MCTSLT01:HCENTRE"}
+{"MCTSLT01:VCENTRE"}
+{"MCTSLT02:HSIZE"}
+{"MCTSLT02:VSIZE"}
+{"MCTSLT02:HCENTRE"}
+{"MCTSLT02:VCENTRE"}
+{"MCTSLT03:HSIZE"}
+{"MCTSLT03:VSIZE"}
+{"MCTSLT03:HCENTRE"}
+{"MCTSLT03:VCENTRE"}
+}
+
+#Save/compare generic pv
+#PV - PV name to compare
+#TOL - tolerance to compare
+#The template creates _$(PV)_CFG_STS for status monitoring
+file "db/MCT_pv_compare.template"
+{
+pattern
+{PV,                            TOL}
+{"MCTCFG01:TABLE_SELECT",       "0.1"}
+{"MCTMONO01:STRIPE_REQUEST_CMD","0.1"}
+}
+
+#global file that triggers all PVs
+#PV1-PVI - PV to trigger
+#The template creates MCTCFG01:CONFIG_SAVE to start the chain
+file "db/MCT_trigger_compare.template"
+{
+pattern
+{PV1, PV2, PV3, PV4, PV5, PV6, PV7, PV8, PV9, PVA, PVB, PVC, PVD, PVE, PVF, PVG, PVH, PVI}
+{"_MCTMONO01MOT06_CFG.PROC",
+"_MCTMONO01MOT07_CFG.PROC",
+"_MCTMONO01MOT03_CFG.PROC",
+"_MCTVBM01:PITCH_CFG.PROC",
+"_MCTSLT01:HSIZE_CFG.PROC",
+"_MCTSLT01:VSIZE_CFG.PROC",
+"_MCTSLT01:HCENTRE_CFG.PROC",
+"_MCTSLT01:VCENTRE_CFG.PROC",
+"_MCTSLT02:HSIZE_CFG.PROC",
+"_MCTSLT02:VSIZE_CFG.PROC",
+"_MCTSLT02:HCENTRE_CFG.PROC",
+"_MCTSLT02:VCENTRE_CFG.PROC",
+"_MCTSLT03:HSIZE_CFG.PROC",
+"_MCTSLT03:VSIZE_CFG.PROC",
+"_MCTSLT03:HCENTRE_CFG.PROC",
+"_MCTSLT03:VCENTRE_CFG.PROC",
+"_MCTCFG01:TABLE_SELECT_CFG.PROC",
+"_MCTMONO01:STRIPE_REQUEST_CMD_CFG.PROC"} 
+}

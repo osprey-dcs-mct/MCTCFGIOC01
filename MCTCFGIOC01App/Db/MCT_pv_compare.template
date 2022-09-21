@@ -1,7 +1,7 @@
-# $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_end_scan.db $
-# $Revision: #1 $
-# $DateTime: 2022/08/30 08:03:30 $
-# Last checked in by: $Author: lewisw $
+# $File: $
+# $Revision:  $
+# $DateTime:  $
+# Last checked in by: $Author: $
 #
 # Description:
 # Database to calculate MCT energy from true energy
@@ -35,19 +35,18 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# This file stores and monitor end scan variables for posssible changes
-record(
-#DMM  ML1 Pitch MCTMONO01MOT06.RBV
-#DMM ML2 Pitch
-#DMM  Y2 Pitch
-#DMM Stripe Sel
-#VBM pitch
-#A slits hor
-#A slits verr
-#A slits size
-#A slits centre 
-#same for B and C
-#table selection
-
-
- 
+record(ai, "_$(PV)_CFG"){
+    field(INP, "$(PV)")
+}
+record(calc, "_$(PV)_CFG_CALC")
+{
+    field(INPA, "_$(PV)_CFG CP")
+    field(INPB, "$(PV) CP")
+    field(INPC, "$(TOL)")
+    field(CALC, "ABS(A-B)>C")
+}
+record(bi, "$(PV)_CFG_STS"){
+    field(INP, "_$(PV)_CFG_CALC CP")
+    field(ONAM,"Different Pos")
+    field(ZNAM,"Same Pos")
+}
