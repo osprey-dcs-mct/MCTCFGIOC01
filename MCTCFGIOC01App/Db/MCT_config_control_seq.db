@@ -1,6 +1,6 @@
 # $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_config_control_seq.db $
-# $Revision: #5 $
-# $DateTime: 2022/09/21 08:38:16 $
+# $Revision: #8 $
+# $DateTime: 2022/09/22 08:56:34 $
 # Last checked in by: $Author: lewisw $
 #
 # Description:
@@ -77,38 +77,49 @@ record(mbbi, "$(P)CONFIG_STATUS") {
     field(PINI, "YES")
     field(ZRVL, "0")
     field(ZRST, "Idle")
-    field(ZRSV, "NO ALARM")
+    field(ZRSV, "NO_ALARM")
     field(ONVL, "1")
     field(ONST, "Running")
-    field(ONSV, "NO ALARM")
+    field(ONSV, "NO_ALARM")
     field(TWVL, "2")
     field(TWST, "Aborted")
     field(TWSV, "MINOR")
     field(THVL, "3")
     field(THST, "Error")
     field(THSV, "MAJOR")
+    field(FRVL, "4")
+    field(FRST, "Wait for continue")
+    field(FRSV, "NO_ALARM")
 }
 
 record(mbbi, "$(P)CONFIG_STATE") {
     field(DESC, "MCT configuration state")
+    field(DTYP, "Raw Soft Channel")
+    field(PINI, "YES")
     field(ZRVL, "0")
     field(ZRST, "Idle")
     field(ONVL, "1")
-    field(ONST, "Moving mono")
+    field(ONST, "Thinking...")
     field(TWVL, "2")
-    field(TWST, "Moving mirror")
+    field(TWST, "Moving A slits first")
     field(THVL, "3")
-    field(THST, "Moving A beam slits")
+    field(THST, "Closing shutter")
     field(FRVL, "4")
-    field(FRST, "Moving B slits")
+    field(FRST, "Moving mono")
     field(FVVL, "5")
-    field(FVST, "Moving C slits")
+    field(FVST, "Moving mirror")
     field(SXVL, "6")
-    field(SXST, "Moving table")
+    field(SXST, "Moving A slits")
     field(SVVL, "7")
-    field(SVST, "Opening shutters")
+    field(SVST, "Moving B slits")
     field(EIVL, "8")
-    field(EIST, "Optimising intensity")
+    field(EIST, "Moving C slits")
+    field(NIVL, "9")
+    field(NIST, "Moving table")
+    field(TEVL, "10")
+    field(TEST, "Opening shutters")
+    field(ELVL, "11")
+    field(ELST, "Optimising intensity")
 }
 
 record(stringin, "$(P)CONFIG_MESSAGE") {

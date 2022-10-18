@@ -1,6 +1,6 @@
 # $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_opt_scan.db $
-# $Revision: #4 $
-# $DateTime: 2022/08/30 07:47:17 $
+# $Revision: #6 $
+# $DateTime: 2022/10/01 09:26:13 $
 # Last checked in by: $Author: lewisw $
 #
 # Description:
@@ -37,7 +37,7 @@
 
 record(sscan,"$(P)MONO01_OPT_SCAN") {
   field(DESC, "Intensity opt record")
-  field(MPTS, "$(MAXPTS=100)")
+  field(MPTS, "$(MAXPTS=200)")
   field(ATIME, ".1")
   field(PDLY, ".1")
 }
@@ -51,16 +51,16 @@ record(sseq,"$(P)MONO01_OPT_SCAN_PARMS_DFT") {
   field(STR2,"MCTMONO01MOT06.RBV")
   field(DLY2,"0.1")
   field(LNK3,"$(P)MONO01_OPT_SCAN_PARMS.DPV")
-  field(STR3,"MCTTBL01DAQ01:SumAll:MeanValue_RBV")
+  field(STR3,"MCTTBL01DAQ01:Current1:MeanValue_RBV")
   field(DLY3,"0.1")
   field(LNK4,"$(P)MONO01_OPT_SCAN_PARMS.NP")
-  field(DO4,"41")
+  field(DO4,"121")
   field(DLY4,"0.1")
   field(LNK5,"$(P)MONO01_OPT_SCAN_PARMS.SP")
-  field(DO5,"-.1")
+  field(DO5,"-0.06")
   field(DLY5,"0.1")
   field(LNK6,"$(P)MONO01_OPT_SCAN_PARMS.EP")
-  field(DO6,".1")
+  field(DO6,"0.06")
   field(DLY6,"0.1")
   field(LNK7,"$(P)MONO01_OPT_SCAN.PDLY")
   field(DO7,".1")
@@ -78,6 +78,7 @@ record(sseq,"$(P)MONO01_OPT_SCAN_PARMS_DFT") {
 
 record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS") {
   field(DESC, "Load OPT_SCAN settings")
+  field(PINI, "YES")
   field(PREC,"6")
   field(PRE,"4")
   field(OPRE,"$(P)MONO01_OPT_SCAN.CMND  CA NMS")
@@ -90,20 +91,22 @@ record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS") {
   field(RPV,"MCTMONO01MOT06.RBV")
   field(OPPV,"$(P)MONO01_OPT_SCAN.P1PV  CA NMS")
   field(ORPV,"$(P)MONO01_OPT_SCAN.R1PV  CA NMS")
-  field(SP,"-.1")
+  field(SP,"-0.06")
   field(OSP,"$(P)MONO01_OPT_SCAN.P1SP  CA NMS")
-  field(EP,".1")
+  field(EP,"0.06")
   field(OEP,"$(P)MONO01_OPT_SCAN.P1EP  CA NMS")
-  field(NP,"41")
+  field(NP,"121")
   field(ONP,"$(P)MONO01_OPT_SCAN_PARMS2.NP CA NMS")
   field(SC,"1")
   field(OSC, "")
   field(IMP,"$(P)MONO01_OPT_SCAN.MPTS  NPP NMS")
   field(IACT,"$(P)MONO01_OPT_SCAN.BUSY  NPP NMS")
-  field(DPV,"MCTTBL01DAQ01:SumAll:MeanValue_RBV")
+  field(DPV,"MCTTBL01DAQ01:Current1:MeanValue_RBV")
   field(ODPV,"$(P)MONO01_OPT_SCAN.D01PV CA NMS")
   field(OLOAD,"$(P)MONO01_OPT_SCAN_PARMS2.LOAD CA NMS")
   field(OGO,"$(P)MONO01_OPT_SCAN_PARMS2.GO CA NMS")
+
+  info(autosaveFields, "AR AFT PPV RPV SP EP NP DPV")
 }
 
 record(scanparm,"$(P)MONO01_OPT_SCAN_PARMS2") {

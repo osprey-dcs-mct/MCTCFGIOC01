@@ -1,6 +1,6 @@
 # $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_config_user_inputs.db $
-# $Revision: #6 $
-# $DateTime: 2022/08/30 08:23:27 $
+# $Revision: #10 $
+# $DateTime: 2022/10/05 03:54:08 $
 # Last checked in by: $Author: lewisw $
 #
 # Description:
@@ -40,7 +40,7 @@ record(ao, "$(P)ENERGY_SP") {
     field(EGU,  "keV")
     field(DRVL, "8.0")
     field(DRVH, "40.0")
-    field(PREC, "2")
+    field(PREC, "3")
     field(SDIS, "$(P)MONO01_STATUS_CMD")
     field(DISV, "0")
 
@@ -176,7 +176,7 @@ record(ao, "$(P)VBM01_CRIT_ENERGY_SP") {
     field(EGU,  "keV")
     field(DRVL, "6.0")
     field(DRVH, "80.0")
-    field(PREC, "2")
+    field(PREC, "3")
 
     info(autosaveFields, "VAL")
 }
@@ -199,6 +199,15 @@ record(bi, "$(P)MOVE_STS") {
     field(DESC, "MCT movement status")
     field(ZNAM, "Complete")
     field(ONAM, "Moving")
+}
+
+# Slit control
+record(bo, "$(P)SLIT_CONTROL_SELECT") {
+    field(DESC, "Slit control selection")
+    field(ZNAM, "Don't move")
+    field(ONAM, "Move")
+
+    info(autosaveFields, "VAL")
 }
 
 # Table selection 

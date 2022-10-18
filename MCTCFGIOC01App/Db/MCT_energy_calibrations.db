@@ -1,6 +1,6 @@
 # $File: //ASP/opa/mct/iocs/MCTCFGIOC01/MCTCFGIOC01App/Db/MCT_energy_calibrations.db $
-# $Revision: #4 $
-# $DateTime: 2022/08/30 08:03:30 $
+# $Revision: #5 $
+# $DateTime: 2022/10/05 03:54:08 $
 # Last checked in by: $Author: lewisw $
 #
 # Description:
@@ -103,3 +103,26 @@ record(ai, "$(P)MONO01_WB4C_MCT_E_SP") {
     field(EGU,  "keV")
     field(PREC, "3")
 }
+
+# Select appropriate MCT energy based on stripe selection
+record(ai, "$(P)MONO01_MCT_E_SP") {
+    field(DESC, "DMM MCT energy SP")
+    field(EGU,  "keV")
+    field(PREC, "3")
+}
+
+record(calcout, "$(P)MONO01_MCT_E_SELECT") {
+    field(DESC, "DMM MCT energy selection")
+    field(EGU,  "keV")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(INPA, "$(P)MONO01_RUC_MCT_E_SP CPP")
+    field(INPB, "$(P)MONO01_VB4C_MCT_E_SP CPP")
+    field(INPC, "$(P)MONO01_WB4C_MCT_E_SP CPP")
+    field(INPD, "$(P)MONO01_STRIPE_RUC_CMD CPP")
+    field(INPE, "$(P)MONO01_STRIPE_VB4C_CMD CPP")
+    field(INPF, "$(P)MONO01_STRIPE_WB4C_CMD CPP")
+    field(CALC, "D?A:E?B:F?C:0")
+    field(OUT, "$(P)MONO01_MCT_E_SP PP")
+}
+

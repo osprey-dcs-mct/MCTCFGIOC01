@@ -9,6 +9,9 @@ epicsEnvSet("IOCNAME", "MCTCFGIOC01")
 epicsEnvSet("PREFIX", "MCTCFG01:")
 epicsEnvSet("AS_PATH", "/asp/autosave/$(IOCNAME)")
 
+# Stop the messages about multiple hosts
+epicsEnvSet("EPICS_CA_AUTO_ADDR_LIST", "NO")
+epicsEnvSet("EPICS_CA_ADDR_LIST", "10.244.115.255")
 
 cd "${TOP}"
 
@@ -37,8 +40,7 @@ dbLoadRecords("db/MCT_config_control_seq.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCTVBM01_target.db", "P=$(PREFIX)")
 dbLoadRecords("db/MCTVBM01_park.db", "P=MCTVBM01:")
 dbLoadRecords("db/MCTMONO01_park.db", "P=MCTMONO01:")
-
-#End of Scan save/compare positions
+#End of scan save / compare positions
 dbLoadTemplate("db/MCT_compare.substitutions","P=$(PREFIX)")
 
 cd "${TOP}/iocBoot/${IOC}"
