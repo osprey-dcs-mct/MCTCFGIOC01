@@ -16,7 +16,7 @@ record(calc, "$(P)VBM01_PITCH_CALC"){
 record(dfanout, "$(P)VBM01_PITCH_MOVE"){
     field(DOL, "$(P)VBM01_PITCH_CALC")
     field(OMSL, "closed_loop")
-#    field(OUTA, "MCTVBM01:PITCH PP")
+    field(OUTA, "MCTVBM01:PITCH PP")
 }
 
 #VBM height calc 
@@ -36,7 +36,7 @@ record(dfanout, "$(P)VBM01_HEIGHT_MOVE")
 {
     field(DOL, "$(P)VBM01_HEIGHT_CALC")
     field(OMSL, "closed_loop")
-#    field(OUTA, "MCTVBM01:HEIGHT PP")
+    field(OUTA, "MCTVBM01:HEIGHT PP")
 }
     
 
