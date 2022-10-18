@@ -153,6 +153,9 @@ assign dmm_control_mode to "MCTMONO01:ENERGY_USER_MODE_CMD";
 string mirror_stripe_current;
 assign mirror_stripe_current to "MCTVBM01:STRIPE_SELECTION_STATUS";
 
+string mirror_stripe_command;
+assign mirror_stripe_command to "MCTVBM01:STRIPE_SELECTION_CMD";
+
 short mirror_park_proc;
 assign mirror_park_proc to "MCTVBM01:PARK";
 
@@ -927,6 +930,41 @@ ss mct_config {
         } state move_white_beam_slits_then_mirror
     }
 
+    state move_mirror {
+        // Main entry point for mirror movement.
+        // This will sequence the movements as required.
+
+        entry {
+            efClear(state_finished_ef);
+        }
+
+        when (mirror_status_request == 1) {
+        } state move_mirror_height
+
+        when (mirror_status_request == 0) {
+        } state park_mirror
+    }
+
+    state move_mirror_height {
+        // Don't reset the timer when looping back in from 
+        // this same state
+        option -t;
+
+        entry {
+            mirror_height_move_proc = 1;
+            pvPut(mirror_height_move_proc, ASYNC);
+        }
+
+        when (delay(1.0) && 
+                pvPutComplete(mirror_height_move_proc) &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
+        } state move_mirror_pitch 
+
+        when (config_abort == 1) {
+        } state abort
+    }
+
     state move_mirror_pitch {
         // Don't reset the timer when looping back in from 
         // this same state
@@ -939,79 +977,80 @@ ss mct_config {
             strcpy(config_message, "Move mirror pitch");
             pvPut(config_message);
 
+            // Ensure pitch motor is back in GO mode
             mirror_pitch_spmg = GO;
             pvPut(mirror_pitch_spmg);
+
+            // Ensure we have sent the required setpoint
+            mirror_pitch_move_proc = 1;
+            pvPut(mirror_pitch_move_proc, ASYNC);
         }
 
         when (delay (1.0) &&
-                mirror_pitch_dmov == 1 &&
+                (mirror_pitch_dmov == 1 ||
+                pvPutComplete(mirror_pitch_move_proc)) &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
-        } state move_slt01 // Go to SLT01 to confirm position 
+        } state move_mirror_stripe 
 
         when (config_abort == 1) {
         } state abort
-
-        when (mirror_pitch_dmov == 1) {
-            efSet(state_finished_ef);
-        } state move_mirror_pitch
     }
 
-    state move_mirror {
+    state park_mirror {
         // Don't reset the timer when looping back in from 
         // this same state
         option -t;
 
         entry {
-            efClear(state_finished_ef);
-            if (mirror_status_request == 1) {
-                mirror_height_move_proc = 1;
-                pvPut(mirror_height_move_proc, ASYNC);
-
-                mirror_pitch_move_proc = 1;
-                pvPut(mirror_pitch_move_proc, ASYNC);
-            }
-
             if (mirror_status_request == 0 && 
                     mirror_in_service_status == 1) {
                 mirror_park_proc = 1;
                 pvPut(mirror_park_proc, ASYNC);
-
-                config_message_prev_proc = 1;
-                pvPut(config_message_prev_proc);
-                strcpy(config_message, "Parking mirror");
-                pvPut(config_message);
             }
         }
 
-        when (delay(1.0) && 
-                mirror_status_request == 1 &&
-                pvPutComplete(mirror_height_move_proc) &&
-                pvPutComplete(mirror_pitch_move_proc) &&
-                (config_seq_mode == 0 ||
-                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
-        } state move_slt01
-
-        when (delay(1.0) && 
-                mirror_status_request == 0 &&
+        when (delay (1.0) &&
                 pvPutComplete(mirror_park_proc) &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
-        } state move_slt01
-
-        when (mirror_status_request == 1 &&
-                pvPutComplete(mirror_height_move_proc) &&
-                pvPutComplete(mirror_pitch_move_proc)) {
-            efSet(state_finished_ef);
-        } state move_mirror
+        } state move_slt01 
 
         when (config_abort == 1) {
         } state abort
 
-        when (mirror_status_request == 0 &&
-                pvPutComplete(mirror_park_proc)) {
+        when (pvPutComplete(mirror_park_proc)) {
             efSet(state_finished_ef);
-        } state move_mirror
+        } state park_mirror
+    }
+
+    state move_mirror_stripe {
+        // Don't reset the timer when looping back in from 
+        // this same state
+        option -t;
+
+        entry {
+            pvGet(mirror_stripe_current);
+            pvGet(mirror_stripe_user_request);
+
+            if (strcmp(mirror_stripe_user_request, mirror_stripe_current) != 0) {
+                strcpy(mirror_stripe_command, mirror_stripe_user_request);
+                pvPut(mirror_stripe_command, ASYNC);
+            }
+        }
+
+        when (delay (1.0) &&
+                pvPutComplete(mirror_stripe_command) &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
+        } state move_slt01 
+
+        when (config_abort == 1) {
+        } state abort
+
+        when (pvPutComplete(mirror_stripe_command)) {
+            efSet(state_finished_ef);
+        } state move_mirror_stripe
     }
 
     state move_slt01 {
