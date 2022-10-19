@@ -162,6 +162,10 @@ assign mirror_park_proc to "MCTVBM01:PARK";
 short mirror_height_move_proc;
 assign mirror_height_move_proc to "{P}VBM01_HEIGHT_MOVE.PROC";
 
+short mirror_height_dmov;
+assign mirror_height_dmov to "MCTVBM01:HEIGHT.DMOV";
+monitor mirror_height_dmov;
+
 float mirror_pitch_move_proc;
 assign mirror_pitch_move_proc to "{P}VBM01_PITCH_MOVE.PROC";
 
@@ -180,6 +184,12 @@ assign mirror_pitch_request to "{P}VBM01_PITCH_CALC";
 
 short mirror_stop;
 assign mirror_stop to "MCTVBM01:CS_Y:stop";
+
+float mirror_roll_target;
+assign mirror_roll_target to "MCTVBM01:ROLL_IN_POS";
+
+float mirror_roll_sp;
+assign mirror_roll_sp to "MCTVBM01:ROLL";
 
 // MCTSLT01
 short slt01_vsize_sp;
@@ -310,7 +320,6 @@ ss mct_config {
         entry {
             config_message_prev_proc = 1;
             pvPut(config_message_prev_proc);
-            strcpy(config_message, "Waiting for user");
             pvPut(config_message);
             config_state = 1;
             pvPut(config_state);
@@ -936,6 +945,8 @@ ss mct_config {
 
         entry {
             efClear(state_finished_ef);
+            config_state = 32;
+            pvPut(config_state);
         }
 
         when (mirror_status_request == 1) {
@@ -951,18 +962,64 @@ ss mct_config {
         option -t;
 
         entry {
+            efClear(state_finished_ef);
+            config_state = 32;
+            pvPut(config_state);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving mirror height");
+            pvPut(config_message);
+
             mirror_height_move_proc = 1;
             pvPut(mirror_height_move_proc, ASYNC);
         }
 
         when (delay(1.0) && 
-                pvPutComplete(mirror_height_move_proc) &&
+                mirror_height_dmov == 1 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
+        } state move_mirror_roll 
+
+        when (config_abort == 1) {
+        } state abort
+
+        when (delay(1.0) &&
+                mirror_height_dmov == 1) {
+            efSet(state_finished_ef);
+        } state move_mirror_height
+    }
+
+    state move_mirror_roll {
+        // Don't reset the timer when looping back in from 
+        // this same state
+        option -t;
+
+        entry {
+            efClear(state_finished_ef);
+            config_state = 32;
+            pvPut(config_state);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving mirror roll");
+            pvPut(config_message);
+
+            pvGet(mirror_roll_target);
+            mirror_roll_sp = mirror_roll_target;
+            pvPut(mirror_roll_sp, ASYNC);
+        }
+
+        when (delay(1.0) && 
+                pvPutComplete(mirror_roll_sp) &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
         } state move_mirror_pitch 
 
         when (config_abort == 1) {
         } state abort
+
+        when (pvPutComplete(mirror_roll_sp)) {
+            efSet(state_finished_ef);
+        } state move_mirror_roll
     }
 
     state move_mirror_pitch {
@@ -972,9 +1029,11 @@ ss mct_config {
 
         entry {
             efClear(state_finished_ef);
+            config_state = 32;
+            pvPut(config_state);
             config_message_prev_proc = 1;
             pvPut(config_message_prev_proc);
-            strcpy(config_message, "Move mirror pitch");
+            strcpy(config_message, "Moving mirror pitch");
             pvPut(config_message);
 
             // Ensure pitch motor is back in GO mode
@@ -995,6 +1054,11 @@ ss mct_config {
 
         when (config_abort == 1) {
         } state abort
+
+        when (mirror_pitch_dmov == 1 ||
+                pvPutComplete(mirror_pitch_move_proc)) {
+            efSet(state_finished_ef);
+        } state move_mirror_pitch
     }
 
     state park_mirror {
@@ -1003,6 +1067,14 @@ ss mct_config {
         option -t;
 
         entry {
+            efClear(state_finished_ef);
+            config_state = 32;
+            pvPut(config_state);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Parking mirror");
+            pvPut(config_message);
+
             if (mirror_status_request == 0 && 
                     mirror_in_service_status == 1) {
                 mirror_park_proc = 1;
@@ -1030,6 +1102,14 @@ ss mct_config {
         option -t;
 
         entry {
+            efClear(state_finished_ef);
+            config_state = 32;
+            pvPut(config_state);
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving mirror stripe");
+            pvPut(config_message);
+
             pvGet(mirror_stripe_current);
             pvGet(mirror_stripe_user_request);
 
@@ -1189,15 +1269,16 @@ ss mct_config {
 
             // Add when() clause to deal with move completion
             // Move this event flag to that clause
-            efSet(state_finished_ef);
         }
 
         when (delay(1.0) &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
+            efSet(state_finished_ef);
         } state open_shutter
 
         when (config_abort == 1) {
+            efSet(state_finished_ef);
         } state abort
     }
 
@@ -1405,6 +1486,7 @@ ss mct_config {
             save_positions = 1;
             pvPut(save_positions);
         }
+        
         when(delay(1.0)) {
             pvGet(config_status);
             if (config_status == 1) {
