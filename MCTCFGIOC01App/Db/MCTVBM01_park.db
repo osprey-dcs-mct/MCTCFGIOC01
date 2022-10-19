@@ -38,11 +38,11 @@
 record(sseq, "$(P)PARK") {
     field(DESC, "Move mirror to parked position")
     field(SELM, "All")
-    field(DOL1, "$(P)HEIGHT_PARK_POS")
-    field(LNK1, "$(P)HEIGHT CA")
+    field(DOL1, "$(P)PITCH_PARK_POS")
+    field(LNK1, "$(P)PITCH CA")
     field(WAIT1, "Wait")
-    field(DOL2, "$(P)PITCH_PARK_POS")
-    field(LNK2, "$(P)PITCH CA")
+    field(DOL2, "$(P)HEIGHT_PARK_POS")
+    field(LNK2, "$(P)HEIGHT CA")
     field(WAIT2, "Wait")
 }
 
