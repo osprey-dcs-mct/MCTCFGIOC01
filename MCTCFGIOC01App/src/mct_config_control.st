@@ -320,6 +320,7 @@ ss mct_config {
         entry {
             config_message_prev_proc = 1;
             pvPut(config_message_prev_proc);
+            strcpy(config_message, "Waiting for user");
             pvPut(config_message);
             config_state = 1;
             pvPut(config_state);
