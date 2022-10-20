@@ -85,6 +85,20 @@ assign config_status to "{P}CONFIG_STATUS";
 
 short config_state;
 assign config_state to "{P}CONFIG_STATE.RVAL";
+// 0 = None
+// 1 = Idle
+// 2 = Thinking...
+// 4 = Moving A slits first
+// 8 = Closing shutter
+// 16 = Moving mono
+// 32 = Moving mirror
+// 64 = Moving A slits
+// 128 = Moving B slits
+// 256 = Moving C slits
+// 512 = Moving table
+// 1024 = Opening shutters
+// 2048 = Optimising intensity
+
 
 string config_message;
 assign config_message to "{P}CONFIG_MESSAGE";
@@ -497,7 +511,7 @@ ss mct_config {
             config_state = 2;
             pvPut(config_state);
 
-            // Add logic here to work out whether to move
+            // Work out whether to move
             // white beam slits or mono/mirror first.
 
             config_message_prev_proc = 1;
@@ -509,9 +523,13 @@ ss mct_config {
             pvGet(mirror_status_request);
             pvGet(mct_energy_request);
             pvGet(dmm_energy_request);
+            pvGet(mirror_pitch_request);
+            pvGet(mirror_pitch_current);
 
             //printf("determine_order: energy_request = %f\n", energy_request);
             //printf("determine_order: dmm_energy_request = %f\n", dmm_energy_request);
+            //printf("determine_order: mirror_pitch_request = %f\n", mirror_pitch_request);
+            //printf("determine_order: mirror_pitch_current = %f\n", mirror_pitch_current);
 
             if (dmm_status_request == 1) {
                 if (mct_energy_request > dmm_energy_request) {
@@ -549,7 +567,7 @@ ss mct_config {
                 white_beam_first == 1 &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
-        } state move_white_beam_slits_then_mirror
+        } state set_up_mirror_pitch_move
 
         when (dmm_status_request == 0 &&
                 mirror_status_request == 1 &&
@@ -888,7 +906,7 @@ ss mct_config {
         } state move_mono_before_slits
     }
 
-    state move_white_beam_slits_then_mirror {
+    state set_up_mirror_pitch_move {
         // Don't reset the timer when looping back in from 
         // this same state
         option -t;
@@ -900,44 +918,68 @@ ss mct_config {
 
             config_message_prev_proc = 1;
             pvPut(config_message_prev_proc);
-            strcpy(config_message, "Closing A Slits");
+            strcpy(config_message, "Pre-configuring mirror");
             pvPut(config_message);
 
             mirror_pitch_spmg = PAUSE;
             pvPut(mirror_pitch_spmg);
 
             mirror_pitch_move_proc = 1;
-            pvPut(mirror_pitch_move_proc, ASYNC);
-
-            mirror_height_move_proc = 1;
-            pvPut(mirror_height_move_proc, ASYNC);
-
-            // Command the white beam slits to move now that the
-            // setpoint for the P1 motor has updated
-            if (move_slits_select == 1) {
-                slt01_all_move_proc = 1;
-                pvPut(slt01_all_move_proc, ASYNC);
-            }
+            pvPut(mirror_pitch_move_proc);
         }
 
-        when (move_slits_select == 0) {
-        } state move_mirror_pitch
+        when (delay(1.0) && 
+                move_slits_select == 0 &&
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
+        } state move_mirror
 
         when (delay(1.0) && 
                 move_slits_select == 1 &&
-                pvPutComplete(slt01_all_move_proc) && 
-                pvPutComplete(mirror_height_move_proc) &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
-        } state move_mirror_pitch 
+        } state move_white_beam_slits_before_mirror
 
         when (config_abort == 1) {
         } state abort
 
-        when (pvPutComplete(slt01_all_move_proc) &&
-                pvPutComplete(mirror_height_move_proc)) {
+        when (delay(1.0)) {
             efSet(state_finished_ef);
-        } state move_white_beam_slits_then_mirror
+        } state set_up_mirror_pitch_move
+    }
+
+    state move_white_beam_slits_before_mirror {
+        // Don't reset the timer when looping back in from 
+        // this same state
+        option -t;
+
+        entry {
+            efClear(state_finished_ef);
+            config_state = 4; // Moving white beam slits
+            pvPut(config_state);
+
+            config_message_prev_proc = 1;
+            pvPut(config_message_prev_proc);
+            strcpy(config_message, "Moving SLT A");
+            pvPut(config_message);
+
+            slt01_all_move_proc = 1;
+            pvPut(slt01_all_move_proc, ASYNC);
+        }
+
+        when (delay(1.0) && 
+                pvPutComplete(slt01_all_move_proc) && 
+                (config_seq_mode == 0 ||
+                 (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
+        } state move_mirror
+
+        when (config_abort == 1) {
+        } state abort
+
+        when (delay(1.0) && 
+                pvPutComplete(slt01_all_move_proc)) {
+            efSet(state_finished_ef);
+        } state move_white_beam_slits_before_mirror
     }
 
     state move_mirror {
@@ -1041,6 +1083,9 @@ ss mct_config {
             mirror_pitch_spmg = GO;
             pvPut(mirror_pitch_spmg);
 
+            // Ensure that this is written before we move
+            pvFlush();
+
             // Ensure we have sent the required setpoint
             mirror_pitch_move_proc = 1;
             pvPut(mirror_pitch_move_proc, ASYNC);
@@ -1075,6 +1120,10 @@ ss mct_config {
             pvPut(config_message_prev_proc);
             strcpy(config_message, "Parking mirror");
             pvPut(config_message);
+
+            // Ensure pitch motor is back in GO mode
+            mirror_pitch_spmg = GO;
+            pvPut(mirror_pitch_spmg);
 
             if (mirror_status_request == 0 && 
                     mirror_in_service_status == 1) {
@@ -1426,6 +1475,23 @@ ss mct_config {
             config_status = 2;
             pvPut(config_status);
 
+            // Ensure all motors are back in GO mode
+            mirror_pitch_spmg = GO;
+            dmm_p1_spmg = GO;
+            dmm_p2_spmg = GO;
+            dmm_y2_spmg = GO;
+            dmm_z2_spmg = GO;
+
+            pvPut(mirror_pitch_spmg);
+            pvPut(dmm_p1_spmg);
+            pvPut(dmm_p2_spmg);
+            pvPut(dmm_y2_spmg);
+            pvPut(dmm_z2_spmg);
+
+            // Ensure that these are written before we
+            // stop all movements
+            pvFlush();
+
             optimisation_scan_execute = 0;
             dmm_stop = 1;
             mirror_stop = 1;
@@ -1486,6 +1552,7 @@ ss mct_config {
             // Save all current positions for comparison
             save_positions = 1;
             pvPut(save_positions);
+
         }
         
         when(delay(1.0)) {
