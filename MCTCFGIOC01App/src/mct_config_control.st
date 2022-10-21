@@ -789,13 +789,19 @@ ss mct_config {
                 dmm_y1 = dmm_y1_in_sp;
                 pvPut(dmm_y1, ASYNC);
             }
+
+            if (dmm_status_request == 0) {
+                config_message_prev_proc = 1;
+                pvPut(config_message_prev_proc);
+                strcpy(config_message, "Preparing to park DMM");
+                pvPut(config_message);
+            }
         }
 
         when(delay(1.0) &&
                 pvPutComplete(dmm_y1) &&
                 (config_seq_mode == 0 ||
                  (config_seq_mode == 1 && efTestAndClear(config_continue_ef) && config_continue == 1))) {
-            //sleep(1);
         } state move_mono_before_slits
 
         when (config_abort == 1) {
